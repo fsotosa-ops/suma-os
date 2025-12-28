@@ -2,81 +2,51 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { Menu, X, LayoutDashboard, Target, FileText } from 'lucide-react'; // Usamos iconos de lucide
 import { ExecutionSidebarItem } from './ExecutionSidebarItem';
-
-// Reutilizamos tus iconos del Sidebar original o usamos Lucide para simplificar
-import { LayoutDashboard, Target, FileText } from 'lucide-react';
 
 export const MobileSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
-  // Función auxiliar para cerrar el menú al hacer click en un link
-  const handleLinkClick = () => setIsOpen(false);
+  // Cierra el menú al hacer clic en un enlace
+  const closeMenu = () => setIsOpen(false);
 
   return (
     <div className="md:hidden">
-      {/* Botón Hamburguesa (Solo visible en móvil) */}
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="p-2 text-gray-400 hover:text-white"
-      >
+      {/* Botón Hamburguesa */}
+      <button onClick={() => setIsOpen(true)} className="p-2 text-gray-400 hover:text-white">
         <Menu size={24} />
       </button>
 
-      {/* Overlay Oscuro */}
+      {/* Fondo Oscuro (Overlay) */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/80 z-40 backdrop-blur-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={closeMenu}
         />
       )}
 
-      {/* Sidebar Móvil (Drawer) */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-[#0B0E14] border-r border-gray-800 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      {/* Panel Lateral Móvil */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-[#0B0E14] border-r border-gray-800 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         
-        {/* Header del Sidebar Móvil */}
+        {/* Header con Logo y Cerrar */}
         <div className="p-6 flex justify-between items-center border-b border-gray-800">
-          <Link href="/" className="flex items-center gap-1" onClick={handleLinkClick}>
-            <span className="text-xl font-bold text-white tracking-tight">SUMADOTS</span>
-            <span className="text-xl font-bold text-blue-500">.OS</span>
-          </Link>
-          <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white">
+          <span className="text-xl font-bold text-white">SUMADOTS.OS</span>
+          <button onClick={closeMenu} className="text-gray-400">
             <X size={24} />
           </button>
         </div>
 
         {/* Links de Navegación */}
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-          <MobileLink 
-            href="/dashboard" 
-            label="Dashboard" 
-            icon={<LayoutDashboard size={20} />} 
-            isActive={pathname === '/dashboard'}
-            onClick={handleLinkClick}
-          />
+        <nav className="p-4 space-y-2">
+          <MobileLink href="/dashboard" label="Dashboard" icon={<LayoutDashboard size={20}/>} active={pathname === '/dashboard'} onClick={closeMenu} />
+          <MobileLink href="/strategy" label="Strategy" icon={<Target size={20}/>} active={pathname === '/strategy'} onClick={closeMenu} />
+          <MobileLink href="/blueprints" label="Blueprints" icon={<FileText size={20}/>} active={pathname === '/blueprints'} onClick={closeMenu} />
           
-          <MobileLink 
-            href="/strategy" 
-            label="Strategy" 
-            icon={<Target size={20} />} 
-            isActive={pathname === '/strategy'}
-            onClick={handleLinkClick}
-          />
-
-          <MobileLink 
-            href="/blueprints" 
-            label="Blueprints" 
-            icon={<FileText size={20} />} 
-            isActive={pathname === '/blueprints'}
-            onClick={handleLinkClick}
-          />
-
-          {/* Tu componente desplegable existente (asegúrate de que funcione bien o simplifícalo aquí) */}
           <div className="pt-2">
-             <ExecutionSidebarItem />
+            <ExecutionSidebarItem />
           </div>
         </nav>
       </div>
@@ -84,13 +54,12 @@ export const MobileSidebar = () => {
   );
 };
 
-const MobileLink = ({ href, label, icon, isActive, onClick }: any) => (
+// Pequeño componente auxiliar para los links
+const MobileLink = ({ href, label, icon, active, onClick }: any) => (
   <Link 
-    href={href}
+    href={href} 
     onClick={onClick}
-    className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all ${
-      isActive ? 'text-blue-400 bg-blue-500/10' : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
-    }`}
+    className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg ${active ? 'bg-blue-500/10 text-blue-400' : 'text-gray-400 hover:text-white'}`}
   >
     {icon}
     <span>{label}</span>
