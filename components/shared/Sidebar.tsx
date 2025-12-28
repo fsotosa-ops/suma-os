@@ -4,11 +4,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ExecutionSidebarItem } from './ExecutionSidebarItem'; // <--- Tu nuevo componente
+import { ExecutionSidebarItem } from './ExecutionSidebarItem';
 
 export const Sidebar = () => {
   return (
-    <aside className="w-[280px] bg-[#0B0E14] border-r border-gray-800 h-screen flex flex-col flex-shrink-0 transition-all duration-300">
+    // CAMBIO AQUI: Agregado 'hidden md:flex' para ocultar en móvil y mostrar en desktop
+    <aside className="hidden md:flex w-[280px] bg-[#0B0E14] border-r border-gray-800 h-screen flex-col flex-shrink-0 transition-all duration-300">
       
       {/* 1. LOGO AREA */}
       <div className="p-8 pb-8">
@@ -39,10 +40,8 @@ export const Sidebar = () => {
           icon={<BlueprintsIcon />} 
         />
 
-        {/* --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE --- */}
-        {/* Reemplazamos el link simple por tu componente desplegable */}
+        {/* Item desplegable de Execution */}
         <ExecutionSidebarItem />
-        {/* -------------------------------------- */}
 
       </nav>
 
@@ -75,9 +74,8 @@ export const Sidebar = () => {
   );
 };
 
-// --- SUBCOMPONENTES AUXILIARES PARA LIMPIEZA ---
+// --- SUBCOMPONENTES AUXILIARES ---
 
-// Link estándar para los items normales
 const SidebarLink = ({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
@@ -99,7 +97,7 @@ const SidebarLink = ({ href, label, icon }: { href: string; label: string; icon:
   );
 };
 
-// --- ICONOS SVG (Simples y ligeros) ---
+// --- ICONOS SVG ---
 
 const DashboardIcon = () => (
   <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
