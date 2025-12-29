@@ -1,19 +1,23 @@
 'use client';
 
-import { useProjectData } from '@/app/context/ProjectProvider';
-import { Card } from "@/components/ui/card";
-import { FlaskConical, CheckCircle2, XCircle, Clock, ArrowUpRight, Search, Filter } from 'lucide-react';
 import { useState } from 'react';
+// CAMBIO: Importar desde el nuevo contexto de estrategia (ruta relativa correcta)
+import { useStrategy } from '../context/StrategyProvider';
+import { Card } from "@/components/ui/card";
+import { FlaskConical, CheckCircle2, XCircle, Clock, ArrowUpRight, Search } from 'lucide-react';
 
 export default function ExperimentsPage() {
-  const { experiments, levers } = useProjectData();
+  // CAMBIO: Usar hook de estrategia en lugar de useProjectData
+  const { experiments, levers } = useStrategy();
+  
   const [filter, setFilter] = useState<'ALL' | 'RUNNING' | 'CONCLUDED'>('ALL');
 
   // Métricas del Laboratorio
   const totalExperiments = experiments.length;
   const activeTests = experiments.filter(e => e.status === 'RUNNING').length;
   const wins = experiments.filter(e => e.result === 'WIN').length;
-  const winRate = totalExperiments > 0 ? Math.round((wins / experiments.filter(e => e.status === 'CONCLUDED').length || 1) * 100) : 0;
+  const concludedCount = experiments.filter(e => e.status === 'CONCLUDED').length;
+  const winRate = concludedCount > 0 ? Math.round((wins / concludedCount) * 100) : 0;
 
   const filteredExperiments = experiments.filter(e => {
       if (filter === 'ALL') return true;
@@ -65,7 +69,7 @@ export default function ExperimentsPage() {
             </div>
         </div>
 
-        {/* Lista de Cards (Estilo Backlog pero visual) */}
+        {/* Lista de Cards */}
         <div className="grid gap-3">
             {filteredExperiments.length > 0 ? (
                 filteredExperiments.map(exp => (

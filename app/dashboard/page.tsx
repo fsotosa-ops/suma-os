@@ -1,12 +1,14 @@
 'use client';
 
-import { useProjectData } from '@/app/context/ProjectProvider';
+// CAMBIO 1: Importar desde el contexto de estrategia
+import { useStrategy } from '@/app/strategy/context/StrategyProvider';
 import { Card } from "@/components/ui/card";
-import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { TrendingUp, ArrowUpRight, DollarSign, Activity, AlertTriangle } from 'lucide-react';
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, Activity } from 'lucide-react';
 
 export default function BusinessDashboardPage() {
-  const { objectives, levers } = useProjectData();
+  // CAMBIO 2: Usar el hook useStrategy
+  const { objectives, levers } = useStrategy();
 
   // Mock de datos financieros agregados (Business Health)
   const revenueData = [

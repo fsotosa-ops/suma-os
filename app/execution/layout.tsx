@@ -1,14 +1,8 @@
-// app/execution/layout.tsx
-import { ExecutionProvider } from './context/ExecutionProvider';
-
-export default function ExecutionLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ExecutionLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ExecutionProvider>
+    // Ya no necesitamos ExecutionProvider aquí
+    <>
       {children}
-    </ExecutionProvider>
+    </>
   );
 }

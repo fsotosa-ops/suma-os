@@ -1,15 +1,15 @@
 'use client';
 
-import { useProjectData } from '@/app/context/ProjectProvider';
+// CAMBIO: Importar desde StrategyProvider
+import { useStrategy } from '@/app/strategy/context/StrategyProvider';
 import { Card } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, Layers, FlaskConical, Beaker, Plus } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, FlaskConical, Beaker, Plus } from 'lucide-react';
 
-// Recibimos la "palanca enriquecida" (datos + analíticas) y la función para abrir el modal
 export const LeverCard = ({ lever, onLaunchTest }: { lever: any, onLaunchTest: (lever: any) => void }) => {
-  const { experiments } = useProjectData();
+  // CAMBIO: Usar hook correcto
+  const { experiments } = useStrategy();
   
-  // Filtramos los experimentos activos para ESTA palanca específica
   const activeExperiments = experiments.filter(e => e.leverId === lever.id && e.status === 'RUNNING');
   const hasActiveExp = activeExperiments.length > 0;
 
@@ -28,7 +28,6 @@ export const LeverCard = ({ lever, onLaunchTest }: { lever: any, onLaunchTest: (
                 <p className="text-xs text-zinc-500">KPI: {lever.kpiName}</p>
             </div>
             
-            {/* Impact Score */}
             <div className="flex flex-col items-end">
                  <div className="flex items-center gap-2 mb-2">
                      <span className="text-xs text-zinc-500 font-mono">Impact Score</span>
@@ -39,16 +38,14 @@ export const LeverCard = ({ lever, onLaunchTest }: { lever: any, onLaunchTest: (
             </div>
         </div>
 
-        {/* Cuerpo: Métricas y Gráfico */}
+        {/* Cuerpo */}
         <div className="grid grid-cols-3 h-48 relative">
-            {/* Badge de Test Activo */}
             {hasActiveExp && (
                 <div className="absolute top-2 left-2 z-20 bg-blue-600/90 text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 animate-pulse">
                     <FlaskConical size={10} /> TEST EN CURSO
                 </div>
             )}
 
-            {/* Columna Izquierda: Datos */}
             <div className="col-span-1 border-r border-zinc-800/50 p-5 flex flex-col justify-between bg-zinc-900/20">
                 <div>
                     <span className="text-xs text-zinc-500 block mb-1">Valor Actual</span>
@@ -68,7 +65,6 @@ export const LeverCard = ({ lever, onLaunchTest }: { lever: any, onLaunchTest: (
                 </div>
             </div>
             
-            {/* Columna Derecha: Gráfico */}
             <div className="col-span-2 p-4">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={lever.historyView}>
@@ -97,7 +93,7 @@ export const LeverCard = ({ lever, onLaunchTest }: { lever: any, onLaunchTest: (
             </div>
         </div>
 
-        {/* Footer: Experimentos y Acciones */}
+        {/* Footer */}
         <div className="px-5 py-3 border-t border-zinc-800/50 bg-black/20 flex justify-between items-center">
             <div className="flex items-center gap-3">
                 {activeExperiments.length > 0 ? (

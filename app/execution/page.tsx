@@ -1,12 +1,20 @@
 'use client';
 
-import { useProjectData } from '@/app/context/ProjectProvider'; 
+// CAMBIO 1: Importar el hook correcto del contexto de ejecución
+import { useExecution } from './context/ExecutionProvider';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, TrendingUp, CheckCircle2, AlertCircle, Calendar, Zap } from 'lucide-react';
 
 export default function DashboardPage() {
-  // 1. CAMBIO: Extraemos 'currentSprint' en lugar de variables sueltas
-  const { tickets, metrics, currentSprint } = useProjectData();
+  // CAMBIO 2: Extraemos tickets y sprints del nuevo provider
+  const { tickets, sprints } = useExecution();
+
+  // CAMBIO 3: Lógica para determinar el sprint actual (Activo o el primero)
+  const currentSprint = sprints.find(s => s.isActive) || sprints[0] || null;
+  
+  // CAMBIO 4: Mock de métricas (antes venían vacías del ProjectProvider)
+  // En el futuro, esto debería venir de un MonitoringProvider o similar
+  const metrics: any[] = []; 
 
   const completedTickets = tickets.filter(t => t.status === 'DONE').length;
   const totalTickets = tickets.length;
@@ -34,7 +42,6 @@ export default function DashboardPage() {
         />
         <DashboardCard 
           title="Sprint Activo" 
-          // 2. CAMBIO: Uso seguro con '?' porque puede ser null
           value={currentSprint?.title || 'Sin Sprint Activo'} 
           icon={<Calendar size={18} className="text-blue-500" />}
           subtext={`Deadline: ${currentSprint?.endDate || '--/--'}`}

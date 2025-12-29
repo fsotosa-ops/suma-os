@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useProjectData } from '@/app/context/ProjectProvider';
+// CAMBIO: Importar desde StrategyProvider
+import { useStrategy } from '@/app/strategy/context/StrategyProvider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Target, Settings2 } from 'lucide-react';
-import { RevOpsLever } from '@/app/execution/types';
+import { RevOpsLever } from '@/app/types';
 
 export const LeverCreator = () => {
-  const { addLever, objectives } = useProjectData();
+  // CAMBIO: Hook correcto
+  const { addLever, objectives } = useStrategy();
   const [isOpen, setIsOpen] = useState(false);
   
-  // Estado local limpio
   const [formData, setFormData] = useState({
     name: '',
     type: 'GROWTH' as RevOpsLever['type'],
@@ -28,12 +29,10 @@ export const LeverCreator = () => {
       name: formData.name,
       type: formData.type,
       kpiName: formData.kpiName,
-      kpiCurrent: 0, // Inicia en 0
+      kpiCurrent: 0,
       kpiTarget: Number(formData.kpiTarget) || 0,
       kpiUnit: formData.kpiUnit,
       history: [],
-      // linkedObjectiveId ahora se maneja desde el OKR, pero si quisieras 
-      // vincularlo al revés (Palanca -> OKR), podrías guardarlo aquí.
     });
 
     setIsOpen(false);
@@ -57,8 +56,6 @@ export const LeverCreator = () => {
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          
-          {/* 1. Definición Básica */}
           <div className="space-y-3">
             <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Nombre de la Estrategia</label>
             <input 
@@ -95,7 +92,6 @@ export const LeverCreator = () => {
              </div>
           </div>
 
-          {/* 2. Configuración del KPI */}
           <div className="p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 space-y-4">
              <div className="flex items-center gap-2 text-indigo-400 mb-1">
                 <Target size={16} />
