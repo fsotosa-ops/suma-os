@@ -2,19 +2,17 @@
 
 import { useState } from 'react';
 import { useProjectAdapter } from '@/app/hooks/useProjectAdapter';
-// CAMBIO: Importar desde el nuevo contexto de estrategia
-import { useStrategy } from '@/app/strategy/context/StrategyProvider';
+import { useStrategy } from '..//context/StrategyProvider';
 import { Activity, FlaskConical, Play } from 'lucide-react';
 
 // Módulos
 import { LeverCreator } from './components/LeverCreator';
 import { LeverMonitor } from './components/LeverMonitor';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RevOpsLever } from '@/app/types'; // Asegúrate de que los tipos vienen de aquí
+import { RevOpsLever } from '@/app/types';
 
 export default function RevOpsMonitorPage() {
   const { strategyView } = useProjectAdapter();
-  // CAMBIO: Usar hook de estrategia
   const { addExperiment } = useStrategy();
   
   const [timeRange, setTimeRange] = useState<'1M' | '3M' | '6M' | '1Y' | 'ALL'>('6M');
@@ -39,7 +37,9 @@ export default function RevOpsMonitorPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    // CAMBIO: Layout full-width
+    <div className="w-full h-full p-6 space-y-8 animate-in fade-in duration-500">
+      
       <div className="flex flex-col sm:flex-row justify-between items-end border-b border-zinc-800 pb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-zinc-100 flex items-center gap-3">

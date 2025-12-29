@@ -14,6 +14,15 @@ export interface Sprint {
 
 export type KpiRecord = { date: string; value: number; };
 
+// --- NUEVO: Estructura para Variantes A/B ---
+export interface Variant {
+  name: string; // "Control", "Variante B"
+  traffic: number; 
+  conversions: number; 
+  visitors: number;
+  conversionRate: number; 
+}
+
 export interface Experiment {
   id: string;
   name: string;
@@ -22,6 +31,22 @@ export interface Experiment {
   result?: 'WIN' | 'LOSS' | 'INCONCLUSIVE';
   impact?: number;
   startDate: string;
+  variants?: Variant[]; // <--- IMPORTANTE: Campo nuevo
+}
+
+export type ObjectiveStatus = 'On Track' | 'At Risk' | 'Off Track';
+
+export interface Objective {
+  id: string;
+  title: string;
+  target: string;
+  progress: number;
+  status: ObjectiveStatus;
+  hypothesis?: string;
+  connectedLeverIds?: string[];
+  impact: number; effort: number;
+  urgency: number; importance: number;
+  riskProbability: number; riskSeverity: number;
 }
 
 export interface RevOpsLever {
@@ -33,28 +58,7 @@ export interface RevOpsLever {
   kpiCurrent: number;
   kpiUnit: string;
   history: KpiRecord[];
-  // Campos opcionales para UI enriquecida
   analytics?: { score: number; techProgress: number }; 
-}
-
-// --- AQUÍ ESTABA EL FALTANTE ---
-export type ObjectiveStatus = 'On Track' | 'At Risk' | 'Off Track';
-
-export interface Objective {
-  id: string;
-  title: string;
-  target: string;
-  progress: number;
-  status: ObjectiveStatus;
-  
-  // Lógica de Negocio
-  hypothesis?: string;
-  connectedLeverIds?: string[];
-
-  // Coordenadas para Matrices (Necesarias para los gráficos)
-  impact: number; effort: number;             // Matriz ROI
-  urgency: number; importance: number;        // Matriz Eisenhower
-  riskProbability: number; riskSeverity: number; // Matriz Riesgos
 }
 
 export interface Ticket {
@@ -67,3 +71,10 @@ export interface Ticket {
   sprintId?: string;
   leverId?: string; 
 }
+
+export type Metric = { 
+  name: string; 
+  value: number; 
+  unit: string; 
+  status: 'ok' | 'warning' | 'error';
+};
