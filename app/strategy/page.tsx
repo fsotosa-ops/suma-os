@@ -11,7 +11,7 @@ export default function StrategyPage() {
   const [selectedOkr, setSelectedOkr] = useState<Objective | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   
-  // Estado extendido para la creación
+  // Estado para creación rápida
   const [newOkr, setNewOkr] = useState<{
     title: string; 
     target: string; 
@@ -27,7 +27,7 @@ export default function StrategyPage() {
       progress: 0,
       status: 'On Track',
       hypothesis: '',
-      connectedLeverIds: newOkr.connectedLeverIds // Guardamos las palancas seleccionadas
+      connectedLeverIds: newOkr.connectedLeverIds
     });
     setNewOkr({ title: '', target: '', connectedLeverIds: [] });
     setIsCreating(false);
@@ -45,10 +45,71 @@ export default function StrategyPage() {
     });
   };
 
-  // ... (El componente StrategyEditor se mantiene igual que antes) ...
+  // --- COMPONENTE INTERNO: Panel de Edición (CORREGIDO) ---
   const StrategyEditor = ({ okr }: { okr: Objective }) => {
-     // ... (mismo código del componente interno anterior) ...
-     return null; // (Placeholder para brevedad, usa el código anterior del editor)
+    const [hypothesis, setHypothesis] = useState(okr.hypothesis || '');
+    
+    // Toggle para conectar/desconectar palancas existentes
+    const toggleLever = (leverId: string) => {
+        const currentIds = okr.connectedLeverIds || [];
+        const newIds = currentIds.includes(leverId) 
+            ? currentIds.filter(id => id !== leverId)
+            : [...currentIds, leverId];
+        
+        updateObjective(okr.id, { connectedLeverIds: newIds });
+    };
+
+    const saveHypothesis = () => {
+        updateObjective(okr.id, { hypothesis });
+    };
+
+    return (
+        <div className="space-y-6">
+            {/* 1. Sección Hipótesis */}
+            <div className="space-y-2">
+                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
+                    <Lightbulb size={16} className="text-yellow-500" /> Hipótesis de Negocio
+                </label>
+                <textarea 
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-3 text-sm text-zinc-200 min-h-[100px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Ej: Si reducimos el tiempo de carga un 20%, el churn bajará un 5%..."
+                    value={hypothesis}
+                    onChange={(e) => setHypothesis(e.target.value)}
+                    onBlur={saveHypothesis}
+                />
+                <p className="text-[10px] text-zinc-500">Describe la lógica de negocio detrás de este objetivo.</p>
+            </div>
+
+            {/* 2. Sección Asignación de Palancas */}
+            <div className="space-y-3">
+                <label className="text-sm font-semibold text-zinc-300 flex items-center gap-2">
+                    <Settings2 size={16} className="text-blue-500" /> Palancas Activadoras (Levers)
+                </label>
+                <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                    {levers.map(lever => {
+                        const isConnected = okr.connectedLeverIds?.includes(lever.id);
+                        return (
+                            <div 
+                                key={lever.id}
+                                onClick={() => toggleLever(lever.id)}
+                                className={`p-3 rounded-lg border cursor-pointer transition-all flex justify-between items-center ${
+                                    isConnected 
+                                    ? 'bg-blue-500/10 border-blue-500/50 text-blue-100' 
+                                    : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:border-zinc-600'
+                                }`}
+                            >
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium">{lever.name}</span>
+                                    <span className="text-[10px] opacity-70">KPI: {lever.kpiName}</span>
+                                </div>
+                                {isConnected && <LinkIcon size={14} />}
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+        </div>
+    );
   };
 
   return (
@@ -65,7 +126,7 @@ export default function StrategyPage() {
         )}
       </div>
       
-      {/* Panel de Creación Rápida MEJORADO */}
+      {/* Panel de Creación Rápida */}
       {isCreating && (
          <Card className="p-6 bg-zinc-950 border-zinc-800 mb-6 animate-in slide-in-from-top-2">
              <div className="flex flex-col gap-6">
@@ -91,7 +152,7 @@ export default function StrategyPage() {
                     </div>
                  </div>
 
-                 {/* SECCIÓN NUEVA: Asignar Palancas al crear */}
+                 {/* Selector Palancas al Crear */}
                  <div className="space-y-2">
                     <label className="text-xs text-zinc-500 uppercase font-bold flex items-center gap-2">
                         <LinkIcon size={12}/> Conectar Palancas (Opcional)
@@ -143,8 +204,12 @@ export default function StrategyPage() {
                                 {okr.status}
                             </span>
                         </div>
-                        
-                        {/* Palancas conectadas */}
+                        <div className="mt-3 flex items-start gap-3">
+                            <div className="flex-1 bg-zinc-950/50 p-3 rounded-lg border border-zinc-800/50">
+                                <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-1 block">Hipótesis</span>
+                                <p className="text-sm text-zinc-300 italic">"{okr.hypothesis || 'Sin hipótesis definida...'}"</p>
+                            </div>
+                        </div>
                         <div className="mt-4 flex gap-2 items-center flex-wrap">
                             <span className="text-xs text-zinc-500">Activado por:</span>
                             {(okr.connectedLeverIds || []).length > 0 ? (
@@ -168,12 +233,14 @@ export default function StrategyPage() {
         ))}
       </div>
 
+      {/* Modal de Edición */}
       <Dialog open={!!selectedOkr} onOpenChange={() => setSelectedOkr(null)}>
         <DialogContent className="bg-[#151921] border-zinc-800 text-white sm:max-w-xl">
             <DialogHeader>
                 <DialogTitle className="text-xl">{selectedOkr?.title}</DialogTitle>
             </DialogHeader>
-            {/* Aquí iría el StrategyEditor como en la versión anterior */}
+            {/* Aquí inyectamos el editor corregido */}
+            {selectedOkr && <StrategyEditor okr={selectedOkr} />}
         </DialogContent>
       </Dialog>
     </div>
