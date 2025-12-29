@@ -1,27 +1,23 @@
 'use client';
 
-import { useProjectData } from '@/app/context/ProjectProvider'; // Usamos el nuevo hook
+import { useProjectData } from '@/app/context/ProjectProvider'; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, TrendingUp, CheckCircle2, AlertCircle, Calendar, Zap } from 'lucide-react';
 
 export default function DashboardPage() {
-  // 1. Consumimos los datos del NUEVO proveedor
-  const { tickets, metrics, sprintName, deadline } = useProjectData();
+  // 1. CAMBIO: Extraemos 'currentSprint' en lugar de variables sueltas
+  const { tickets, metrics, currentSprint } = useProjectData();
 
-  // 2. Recalculamos las métricas visuales con los datos reales
   const completedTickets = tickets.filter(t => t.status === 'DONE').length;
   const totalTickets = tickets.length;
   const velocity = totalTickets > 0 ? Math.round((completedTickets / totalTickets) * 100) : 0;
   
-  // Mapeamos las métricas del sistema para usarlas en la UI
   const apiMetric = metrics.find(m => m.name === 'API Uptime');
-  const dbMetric = metrics.find(m => m.name === 'Database Latency'); // Ajustado al nombre real en tu provider
   const errorMetric = metrics.find(m => m.name === 'Error Rate');
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-700 p-8">
       
-      {/* Header */}
       <div className="border-b border-zinc-800 pb-6">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
           Dashboard de Ejecución
@@ -29,7 +25,6 @@ export default function DashboardPage() {
         <p className="text-zinc-500 mt-1">Visión técnica detallada del Sprint actual.</p>
       </div>
 
-      {/* Métricas Principales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <DashboardCard 
           title="Velocidad de Equipo" 
@@ -39,9 +34,10 @@ export default function DashboardPage() {
         />
         <DashboardCard 
           title="Sprint Activo" 
-          value={sprintName} // Dato dinámico del contexto
+          // 2. CAMBIO: Uso seguro con '?' porque puede ser null
+          value={currentSprint?.title || 'Sin Sprint Activo'} 
           icon={<Calendar size={18} className="text-blue-500" />}
-          subtext={`Deadline: ${deadline}`}
+          subtext={`Deadline: ${currentSprint?.endDate || '--/--'}`}
         />
         <DashboardCard 
           title="Tickets Completados" 
@@ -52,8 +48,6 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Actividad Reciente */}
         <div className="space-y-4">
           <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
             <Activity size={14} /> Actividad del Sprint
@@ -76,7 +70,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Estado del Sistema (System Health) */}
         <div className="space-y-4">
           <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
             <AlertCircle size={14} /> System Health
@@ -87,7 +80,6 @@ export default function DashboardPage() {
               <CardTitle className="text-sm font-medium text-zinc-500">Métricas de Infraestructura</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Renderizado defensivo por si las métricas no existen aún */}
               <HealthItem 
                 label="API Uptime" 
                 value={apiMetric ? `${apiMetric.value}${apiMetric.unit}` : '--'} 
@@ -98,11 +90,6 @@ export default function DashboardPage() {
                 value={errorMetric ? `${errorMetric.value}${errorMetric.unit}` : '--'} 
                 status={errorMetric?.status === 'ok' ? 'good' : 'warning'} 
               />
-              <HealthItem 
-                label="Database" 
-                value="24ms" // Valor estático o agregar a metrics en provider
-                status="good" 
-              />
             </CardContent>
           </Card>
         </div>
@@ -111,8 +98,7 @@ export default function DashboardPage() {
   );
 }
 
-// --- Componentes Visuales (Estilo Original) ---
-
+// Componentes auxiliares visuales (sin cambios lógicos)
 function DashboardCard({ title, value, icon, trend, subtext }: any) {
   return (
     <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 transition-all">
