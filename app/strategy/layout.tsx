@@ -3,7 +3,8 @@ import { StrategyProvider } from './context/StrategyProvider';
 export default function StrategyLayout({ children }: { children: React.ReactNode }) {
   return (
     <StrategyProvider>
-      <div className="h-full flex flex-col p-6 overflow-y-auto custom-scrollbar">
+      {/* Eliminamos p-6 y overflow global para que lo maneje el Dashboard */}
+      <div className="h-full w-full flex flex-col bg-[#020617]">
         {children}
       </div>
     </StrategyProvider>

@@ -63,7 +63,7 @@ export const Sidebar = () => {
             
             <SidebarLink 
               href="/strategy" 
-              label="Strategy Map" 
+              label="Strategy Board" 
               icon={<Target size={20} />} 
               isCollapsed={isCollapsed} 
             />
