@@ -11,7 +11,8 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronRight,
-  Activity // Importamos el icono para el monitor
+  Activity,    // Icono para RevOps Monitor
+  FlaskConical // Icono para Growth Lab (Experimentos)
 } from 'lucide-react';
 import { ExecutionSidebarItem } from './ExecutionSidebarItem'; 
 
@@ -44,6 +45,7 @@ export const Sidebar = () => {
 
       {/* 2. NAVEGACIÓN */}
       <nav className="flex-1 px-3 space-y-2 overflow-y-auto custom-scrollbar overflow-x-hidden">
+        {/* Dashboard Principal */}
         <SidebarLink 
           href="/dashboard" 
           label="Dashboard" 
@@ -52,29 +54,53 @@ export const Sidebar = () => {
         />
         
         {/* GRUPO ESTRATEGIA */}
-        <SidebarLink 
-          href="/strategy" 
-          label="Strategy" 
-          icon={<Target size={20} />} 
-          isCollapsed={isCollapsed} 
-        />
-        {/* ENLACE NUEVO: Monitor RevOps */}
-        <SidebarLink 
-          href="/strategy/levers" 
-          label="RevOps Monitor" 
-          icon={<Activity size={20} />} 
-          isCollapsed={isCollapsed} 
-        />
+        <div className="pt-2 pb-1">
+            {!isCollapsed && (
+              <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-1">
+                Estrategia
+              </p>
+            )}
+            
+            <SidebarLink 
+              href="/strategy" 
+              label="Strategy Map" 
+              icon={<Target size={20} />} 
+              isCollapsed={isCollapsed} 
+            />
+            
+            <SidebarLink 
+              href="/strategy/levers" 
+              label="RevOps Monitor" 
+              icon={<Activity size={20} />} 
+              isCollapsed={isCollapsed} 
+            />
+            
+            <SidebarLink 
+              href="/strategy/experiments" 
+              label="Growth Lab" 
+              icon={<FlaskConical size={20} />} 
+              isCollapsed={isCollapsed} 
+            />
+        </div>
 
-        <SidebarLink 
-          href="/blueprints" 
-          label="Blueprints" 
-          icon={<FileText size={20} />} 
-          isCollapsed={isCollapsed} 
-        />
-        
-        {/* Pasamos el estado al componente hijo */}
-        <ExecutionSidebarItem isCollapsed={isCollapsed} />
+        {/* GRUPO OPERACIÓN */}
+        <div className="pt-2 pb-1">
+             {!isCollapsed && (
+               <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-wider mb-1">
+                 Operación
+               </p>
+             )}
+             
+            <SidebarLink 
+              href="/blueprints" 
+              label="Blueprints" 
+              icon={<FileText size={20} />} 
+              isCollapsed={isCollapsed} 
+            />
+            
+            {/* Pasamos el estado al componente hijo (Execution tiene su propio submenú) */}
+            <ExecutionSidebarItem isCollapsed={isCollapsed} />
+        </div>
       </nav>
 
       {/* 3. FOOTER */}
@@ -112,7 +138,7 @@ export const Sidebar = () => {
   );
 };
 
-// Componente de Link (Sin cambios lógicos, solo visuales)
+// Componente de Link (Optimizamos visualmente)
 const SidebarLink = ({ href, label, icon, isCollapsed }: any) => {
   const pathname = usePathname();
   const isActive = pathname === href;
@@ -123,6 +149,7 @@ const SidebarLink = ({ href, label, icon, isCollapsed }: any) => {
       className={`flex items-center gap-3 px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
         isActive ? 'text-blue-400 bg-blue-500/10' : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
       } ${isCollapsed ? 'justify-center' : ''}`}
+      title={isCollapsed ? label : undefined}
     >
       <div className={isActive ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-300'}>
         {icon}

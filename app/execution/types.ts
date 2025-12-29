@@ -14,7 +14,17 @@ export interface Sprint {
 
 export type KpiRecord = { date: string; value: number; };
 
-// --- PALANCA (La métrica operativa) ---
+// --- NUEVA ENTIDAD: EXPERIMENTO (A/B TESTING) ---
+export interface Experiment {
+  id: string;
+  name: string; // Ej: "Botón Flotante vs Fijo"
+  leverId: string; // Pertenece a una palanca específica
+  status: 'DRAFT' | 'RUNNING' | 'CONCLUDED';
+  result?: 'WIN' | 'LOSS' | 'INCONCLUSIVE';
+  impact?: number; // Ej: +2.5%
+  startDate: string;
+}
+
 export interface RevOpsLever {
   id: string;
   name: string; 
@@ -24,7 +34,6 @@ export interface RevOpsLever {
   kpiCurrent: number;
   kpiUnit: string;
   history: KpiRecord[]; 
-  // linkedObjectiveId: string; <--- ELIMINAMOS ESTO (La relación ahora vive en el OKR)
 }
 
 export interface Ticket {
@@ -35,5 +44,5 @@ export interface Ticket {
   status: TicketStatus;
   points: number; 
   sprintId?: string;
-  leverId?: string; // El ticket SÍ sabe a qué palanca pertenece
+  leverId?: string; 
 }
