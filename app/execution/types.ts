@@ -1,15 +1,7 @@
-// Archivo: app/execution/types.ts
-
-// AQUI ESTABA EL ERROR: Agregamos 'FEATURE' a la lista de tipos permitidos
-export type TicketType = 'EPIC' | 'STORY' | 'TASK' | 'BUG' | 'FEATURE'; 
-
+export type TicketType = 'EPIC' | 'STORY' | 'TASK' | 'BUG' | 'FEATURE';
 export type TicketStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
 
-export interface User {
-  id: string;
-  name: string;
-  avatarUrl?: string;
-}
+export interface User { id: string; name: string; avatarUrl?: string; }
 
 export interface Sprint {
   id: string;
@@ -20,29 +12,19 @@ export interface Sprint {
   isActive: boolean;
 }
 
-// --- TIPOS DE HISTORIAL (Para los gráficos) ---
-export type KpiRecord = {
-  date: string;
-  value: number;
-};
+export type KpiRecord = { date: string; value: number; };
 
-// --- LA ENTIDAD PALANCA EVOLUCIONADA ---
+// --- PALANCA (La métrica operativa) ---
 export interface RevOpsLever {
   id: string;
   name: string; 
-  description?: string;
   type: 'EFFICIENCY' | 'GROWTH' | 'RETENTION'; 
-  
-  // KPI Config
   kpiName: string; 
   kpiTarget: number; 
   kpiCurrent: number;
-  kpiUnit: string; // '%', '$', '#'
-  
-  // Historial
+  kpiUnit: string;
   history: KpiRecord[]; 
-  
-  linkedObjectiveId?: string;
+  // linkedObjectiveId: string; <--- ELIMINAMOS ESTO (La relación ahora vive en el OKR)
 }
 
 export interface Ticket {
@@ -52,7 +34,6 @@ export interface Ticket {
   type: TicketType;
   status: TicketStatus;
   points: number; 
-  assigneeId?: string;
   sprintId?: string;
-  leverId?: string;
+  leverId?: string; // El ticket SÍ sabe a qué palanca pertenece
 }

@@ -10,7 +10,8 @@ import {
   MessageSquare, 
   Settings, 
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  Activity // Importamos el icono para el monitor
 } from 'lucide-react';
 import { ExecutionSidebarItem } from './ExecutionSidebarItem'; 
 
@@ -49,12 +50,22 @@ export const Sidebar = () => {
           icon={<LayoutDashboard size={20} />} 
           isCollapsed={isCollapsed} 
         />
+        
+        {/* GRUPO ESTRATEGIA */}
         <SidebarLink 
           href="/strategy" 
           label="Strategy" 
           icon={<Target size={20} />} 
           isCollapsed={isCollapsed} 
         />
+        {/* ENLACE NUEVO: Monitor RevOps */}
+        <SidebarLink 
+          href="/strategy/levers" 
+          label="RevOps Monitor" 
+          icon={<Activity size={20} />} 
+          isCollapsed={isCollapsed} 
+        />
+
         <SidebarLink 
           href="/blueprints" 
           label="Blueprints" 
@@ -101,10 +112,11 @@ export const Sidebar = () => {
   );
 };
 
-// Componente de Link actualizado
+// Componente de Link (Sin cambios lógicos, solo visuales)
 const SidebarLink = ({ href, label, icon, isCollapsed }: any) => {
   const pathname = usePathname();
   const isActive = pathname === href;
+  
   return (
     <Link 
       href={href} 

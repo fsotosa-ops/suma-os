@@ -3,14 +3,15 @@
 import { useState } from 'react';
 import { useProjectAdapter } from '@/app/hooks/useProjectAdapter';
 import { Card } from "@/components/ui/card";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, Activity, Zap, Layers } from 'lucide-react';
+import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ArrowUpRight, ArrowDownRight, Activity, Layers } from 'lucide-react';
 
 export default function RevOpsMonitorPage() {
   const { strategyView } = useProjectAdapter();
-  const [timeRange, setTimeRange] = useState<'1M' | '3M' | '6M'>('6M');
+  // ESTADO: Incluimos 1Y y ALL para análisis de largo plazo
+  const [timeRange, setTimeRange] = useState<'1M' | '3M' | '6M' | '1Y' | 'ALL'>('6M');
 
-  // Obtenemos las palancas calculadas dinámicamente según el rango
+  // Obtenemos las palancas calculadas dinámicamente según el rango seleccionado
   const enrichedLevers = strategyView.getLeversByRange(timeRange);
 
   return (
@@ -27,7 +28,7 @@ export default function RevOpsMonitorPage() {
         
         {/* Selector Temporal (Tabs) */}
         <div className="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800">
-            {['1M', '3M', '6M'].map((range) => (
+            {['1M', '3M', '6M', '1Y', 'ALL'].map((range) => (
                 <button
                     key={range}
                     onClick={() => setTimeRange(range as any)}
