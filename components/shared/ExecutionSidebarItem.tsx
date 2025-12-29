@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, ChevronRight } from 'lucide-react'; // Usamos iconos de lucide
+import { LayoutGrid, ChevronRight, ListTodo, Kanban, RefreshCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Props {
   isCollapsed?: boolean;
@@ -15,67 +16,79 @@ export const ExecutionSidebarItem = ({ isCollapsed }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (isActive) setIsOpen(true);
-  }, [isActive]);
+    if (isActive && !isCollapsed) setIsOpen(true);
+  }, [isActive, isCollapsed]);
 
-  // Si se colapsa la barra lateral, cerramos el menú automáticamente (opcional)
-  useEffect(() => {
-    if (isCollapsed) setIsOpen(false);
-  }, [isCollapsed]);
+  // Si está colapsado, forzamos que el submenú se cierre visualmente
+  if (isCollapsed && isOpen) setIsOpen(false);
 
   return (
     <div className="flex flex-col gap-1">
-      <button 
-        onClick={() => !isCollapsed && setIsOpen(!isOpen)}
-        className={`flex items-center w-full py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
-          isActive 
-            ? 'text-blue-400 bg-blue-500/10' 
-            : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
-        } ${isCollapsed ? 'justify-center px-0' : 'justify-between px-3'}`}
-        title={isCollapsed ? "Execution" : ""}
-      >
-        <div className="flex items-center gap-3">
-          <LayoutGrid size={20} className={isActive ? 'text-blue-400' : 'text-gray-500'} />
-          {!isCollapsed && <span>Execution</span>}
-        </div>
+      {/* CORRECCIÓN DE ALINEACIÓN:
+         Usamos exactamente las mismas clases base que NavItem en Sidebar.tsx.
+         Cuando está colapsado (isCollapsed), forzamos 'justify-center' y quitamos paddings laterales extra.
+      */}
+      <div className={cn(
+        "group flex items-center rounded-md transition-all duration-200 cursor-pointer",
+        isActive ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900",
+        isCollapsed ? "justify-center px-0 py-2" : "justify-between px-3 py-2" 
+      )}>
         
-        {!isCollapsed && (
-          <ChevronRight 
-            size={16}
-            className={`text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-90 text-blue-400' : ''}`} 
-          />
-        )}
-      </button>
-
-      {/* El submenú solo se muestra si la barra NO está colapsada */}
-      {!isCollapsed && (
-        <div 
-          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            isOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
-          }`}
+        {/* Link Principal */}
+        <Link 
+          href="/execution" 
+          className={cn(
+            "flex items-center gap-3", 
+            isCollapsed ? "justify-center w-full" : "flex-1"
+          )}
+          title="Execution"
         >
-          <div className="flex flex-col pl-4 gap-1 mt-1 border-l border-gray-800 ml-6">
-            <SubItem href="/execution" label="Kanban Board" currentPath={pathname} />
-            <SubItem href="/execution/backlog" label="Backlog" currentPath={pathname} />
-            <SubItem href="/execution/sprints" label="Sprints" currentPath={pathname} />
-          </div>
+          <LayoutGrid size={18} />
+          {!isCollapsed && <span className="text-sm">Execution</span>}
+        </Link>
+        
+        {/* Flecha (Solo visible si NO está colapsado) */}
+        {!isCollapsed && (
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              setIsOpen(!isOpen);
+            }}
+            className="p-1 hover:bg-zinc-700 rounded transition-colors text-zinc-500"
+          >
+            <ChevronRight 
+              size={14} 
+              className={cn("transition-transform duration-300", isOpen && "rotate-90")} 
+            />
+          </button>
+        )}
+      </div>
+
+      {/* Submenú */}
+      {!isCollapsed && isOpen && (
+        <div className="pl-4 ml-2 border-l border-zinc-800 space-y-1 mt-1 animate-in slide-in-from-top-1 duration-200">
+          <SubItem href="/execution/kanban" label="Kanban" icon={<Kanban size={14}/>} currentPath={pathname} />
+          <SubItem href="/execution/backlog" label="Backlog" icon={<ListTodo size={14}/>} currentPath={pathname} />
+          <SubItem href="/execution/sprints" label="Sprints" icon={<RefreshCw size={14}/>} currentPath={pathname} />
         </div>
       )}
     </div>
   );
 };
 
-const SubItem = ({ href, label, currentPath }: any) => {
+const SubItem = ({ href, label, currentPath, icon }: any) => {
   const isSelected = currentPath === href; 
   return (
     <Link 
       href={href} 
-      className={`block py-2 pl-4 text-sm rounded-r-lg transition-colors border-l-2 whitespace-nowrap ${
+      className={cn(
+        "flex items-center gap-2 py-1.5 px-3 text-xs rounded-md transition-colors",
         isSelected 
-          ? 'text-blue-400 border-blue-500 bg-blue-500/5 font-medium' 
-          : 'text-gray-500 border-transparent hover:text-gray-300 hover:border-gray-600'
-      }`}
+          ? "text-blue-400 bg-blue-500/10" 
+          : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
+      )}
     >
+      {icon}
       {label}
     </Link>
   );

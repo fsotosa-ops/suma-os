@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import { useExecutionBoard } from '../hooks/useExecutionBoard';
+import { useExecution } from '../context/ExecutionProvider';
 import { BoardColumn } from './BoardColumn';
 import { TicketDetailModal } from './TicketDetailModal'; 
 import { CreateSprintModal } from './CreateSprintModal';
 import { TicketStatus, Ticket } from '../types';
 
 export const BoardPage = () => {
-  const { tickets, sprints, actions } = useExecutionBoard();
+  const { tickets, sprints, actions } = useExecution();
   
   // Estados de interfaz
   const [isSprintModalOpen, setSprintModalOpen] = useState(false);
