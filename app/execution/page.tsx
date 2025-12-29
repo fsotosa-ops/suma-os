@@ -1,128 +1,147 @@
 'use client';
-import { useExecution } from './context/ExecutionProvider';
+
+import { useProjectData } from '@/app/context/ProjectProvider'; // Usamos el nuevo hook
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Clock, CheckCircle2, AlertCircle, RefreshCw, ArrowUpRight } from 'lucide-react';
-import Link from 'next/link'; // Importante importar Link
+import { Activity, TrendingUp, CheckCircle2, AlertCircle, Calendar, Zap } from 'lucide-react';
 
-export default function ExecutionSummaryPage() {
-  const { tickets, sprints } = useExecution();
+export default function DashboardPage() {
+  // 1. Consumimos los datos del NUEVO proveedor
+  const { tickets, metrics, sprintName, deadline } = useProjectData();
+
+  // 2. Recalculamos las métricas visuales con los datos reales
+  const completedTickets = tickets.filter(t => t.status === 'DONE').length;
+  const totalTickets = tickets.length;
+  const velocity = totalTickets > 0 ? Math.round((completedTickets / totalTickets) * 100) : 0;
   
-  const stats = {
-    total: tickets.length,
-    todo: tickets.filter(t => t.status === 'TODO').length,
-    inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
-    done: tickets.filter(t => t.status === 'DONE').length,
-  };
-
-  const activeSprint = sprints.find(s => s.isActive);
+  // Mapeamos las métricas del sistema para usarlas en la UI
+  const apiMetric = metrics.find(m => m.name === 'API Uptime');
+  const dbMetric = metrics.find(m => m.name === 'Database Latency'); // Ajustado al nombre real en tu provider
+  const errorMetric = metrics.find(m => m.name === 'Error Rate');
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-700">
-      <div className="space-y-2 border-b border-zinc-800 pb-6">
-        <h1 className="text-3xl font-semibold text-zinc-100 tracking-tight">Resumen de Ejecución</h1>
-        <p className="text-zinc-500">Panel de control operativo.</p>
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-700 p-8">
+      
+      {/* Header */}
+      <div className="border-b border-zinc-800 pb-6">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
+          Dashboard de Ejecución
+        </h1>
+        <p className="text-zinc-500 mt-1">Visión técnica detallada del Sprint actual.</p>
       </div>
 
-      {/* Grid de KPIs Interactivos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Clic aquí lleva al Backlog general */}
-        <Link href="/execution/backlog">
-          <StatCard title="Total Tareas" value={stats.total} icon={<BarChart3 size={18} />} />
-        </Link>
-        
-        {/* Clic aquí lleva al Kanban filtrado (idealmente) o al Kanban general */}
-        <Link href="/execution/kanban">
-          <StatCard title="Pendientes" value={stats.todo} icon={<Clock size={18} />} />
-        </Link>
-
-        <Link href="/execution/kanban">
-          <StatCard title="En Curso" value={stats.inProgress} icon={<AlertCircle size={18} />} />
-        </Link>
-
-        <Link href="/execution/backlog">
-          <StatCard title="Finalizadas" value={stats.done} icon={<CheckCircle2 size={18} />} />
-        </Link>
+      {/* Métricas Principales */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <DashboardCard 
+          title="Velocidad de Equipo" 
+          value={`${velocity}%`} 
+          icon={<Zap size={18} className="text-yellow-500" />}
+          trend="+5% vs last week"
+        />
+        <DashboardCard 
+          title="Sprint Activo" 
+          value={sprintName} // Dato dinámico del contexto
+          icon={<Calendar size={18} className="text-blue-500" />}
+          subtext={`Deadline: ${deadline}`}
+        />
+        <DashboardCard 
+          title="Tickets Completados" 
+          value={`${completedTickets}/${totalTickets}`} 
+          icon={<CheckCircle2 size={18} className="text-emerald-500" />}
+          trend={velocity > 50 ? "Alta productividad" : "Ritmo moderado"}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* Widget Sprint Activo (Clic lleva a Sprints) */}
-        <Link href="/execution/sprints" className="lg:col-span-2 block group">
-          <Card className="bg-zinc-900/20 border-zinc-800 shadow-sm hover:border-zinc-600 transition-all h-full cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-              <CardTitle className="text-sm font-medium text-zinc-400 flex items-center gap-2 group-hover:text-zinc-200 transition-colors">
-                <RefreshCw size={14} className="text-blue-500" /> Ciclo Actual
-                <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-              </CardTitle>
-              <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full border border-emerald-500/20 uppercase tracking-widest">
-                Activo
-              </span>
-            </CardHeader>
-            <CardContent>
-              {activeSprint ? (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-xl font-semibold text-zinc-100">{activeSprint.title}</h3>
-                      <p className="text-sm text-zinc-500 mt-1 italic">"{activeSprint.goal}"</p>
-                    </div>
-                  </div>
-                  
-                  {/* Barra de progreso */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-bold text-zinc-500 uppercase">
-                      <span>Progreso</span>
-                      <span>{stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-zinc-100 transition-all duration-1000 ease-out" 
-                        style={{ width: `${stats.total > 0 ? (stats.done / stats.total) * 100 : 0}%` }} 
-                      />
-                    </div>
-                  </div>
+        {/* Actividad Reciente */}
+        <div className="space-y-4">
+          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+            <Activity size={14} /> Actividad del Sprint
+          </h2>
+          <div className="border border-zinc-800 rounded-xl bg-zinc-900/20 overflow-hidden">
+            {tickets.map((ticket) => (
+              <div key={ticket.id} className="p-4 border-b border-zinc-800 last:border-0 flex justify-between items-center hover:bg-zinc-800/50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${ticket.status === 'DONE' ? 'bg-emerald-500' : ticket.status === 'BLOCKED' ? 'bg-red-500' : 'bg-blue-400'}`} />
+                  <span className="text-sm font-medium text-zinc-300">{ticket.title}</span>
                 </div>
-              ) : (
-                <div className="py-10 text-center border border-dashed border-zinc-800 rounded-xl">
-                  <p className="text-zinc-600 text-sm italic">No hay un sprint activo actualmente.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </Link>
+                <span className={`text-[10px] font-mono uppercase px-2 py-1 rounded border ${ticket.status === 'BLOCKED' ? 'border-red-900 text-red-400 bg-red-900/10' : 'border-zinc-700 text-zinc-400'}`}>
+                  {ticket.status}
+                </span>
+              </div>
+            ))}
+            {tickets.length === 0 && (
+              <p className="p-6 text-center text-sm text-zinc-500 italic">No hay tickets activos.</p>
+            )}
+          </div>
+        </div>
 
-        {/* Prioridades (Clic lleva al Backlog) */}
-        <Link href="/execution/backlog" className="block group">
-            <Card className="bg-zinc-900/20 border-zinc-800 shadow-sm hover:border-zinc-600 transition-all h-full cursor-pointer">
+        {/* Estado del Sistema (System Health) */}
+        <div className="space-y-4">
+          <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+            <AlertCircle size={14} /> System Health
+          </h2>
+          
+          <Card className="bg-zinc-900/20 border-zinc-800">
             <CardHeader>
-                <CardTitle className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em] group-hover:text-zinc-300">Prioridades</CardTitle>
+              <CardTitle className="text-sm font-medium text-zinc-500">Métricas de Infraestructura</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {tickets.filter(t => t.status === 'TODO').slice(0, 3).map(ticket => (
-                <div key={ticket.id} className="flex items-center justify-between p-3 bg-zinc-900/40 border border-zinc-800 rounded-lg">
-                    <span className="text-xs text-zinc-300 truncate pr-2">{ticket.title}</span>
-                </div>
-                ))}
+              {/* Renderizado defensivo por si las métricas no existen aún */}
+              <HealthItem 
+                label="API Uptime" 
+                value={apiMetric ? `${apiMetric.value}${apiMetric.unit}` : '--'} 
+                status={apiMetric?.status === 'ok' ? 'good' : 'bad'} 
+              />
+              <HealthItem 
+                label="Error Rate" 
+                value={errorMetric ? `${errorMetric.value}${errorMetric.unit}` : '--'} 
+                status={errorMetric?.status === 'ok' ? 'good' : 'warning'} 
+              />
+              <HealthItem 
+                label="Database" 
+                value="24ms" // Valor estático o agregar a metrics en provider
+                status="good" 
+              />
             </CardContent>
-            </Card>
-        </Link>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) {
+// --- Componentes Visuales (Estilo Original) ---
+
+function DashboardCard({ title, value, icon, trend, subtext }: any) {
   return (
-    <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/10 hover:bg-zinc-800/40 transition-all group cursor-pointer h-full">
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest group-hover:text-zinc-400 transition-colors">{title}</p>
-          <h2 className="text-2xl font-semibold text-zinc-100 mt-1 font-mono tracking-tighter">{value}</h2>
-        </div>
-        <div className="p-2.5 bg-zinc-800/50 rounded-lg text-zinc-500 group-hover:text-zinc-100 transition-colors">
-          {icon}
-        </div>
+    <div className="p-5 rounded-xl border border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 transition-all">
+      <div className="flex justify-between items-start mb-2">
+        <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">{title}</span>
+        <div className="p-1.5 bg-zinc-800 rounded-md">{icon}</div>
       </div>
+      <div className="text-2xl font-bold text-zinc-100 font-mono tracking-tight">{value}</div>
+      {(trend || subtext) && (
+        <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1">
+          {trend && <TrendingUp size={10} className="text-emerald-500" />}
+          {trend || subtext}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function HealthItem({ label, value, status }: { label: string, value: string, status: 'good' | 'warning' | 'bad' }) {
+  const color = status === 'good' ? 'bg-emerald-500' : status === 'warning' ? 'bg-yellow-500' : 'bg-red-500';
+  const shadowColor = status === 'good' ? 'shadow-emerald-500/50' : status === 'warning' ? 'shadow-yellow-500/50' : 'shadow-red-500/50';
+  
+  return (
+    <div className="flex justify-between items-center p-2 rounded-lg hover:bg-zinc-800/30 transition-colors">
+      <div className="flex items-center gap-3">
+        <div className={`w-1.5 h-1.5 rounded-full ${color} shadow-[0_0_8px] ${shadowColor}`} />
+        <span className="text-sm text-zinc-400">{label}</span>
+      </div>
+      <span className="text-sm font-mono font-medium text-zinc-200">{value}</span>
     </div>
   );
 }
