@@ -17,7 +17,6 @@ import {
 import { ExecutionSidebarItem } from './ExecutionSidebarItem'; 
 
 export const Sidebar = () => {
-  // Estado para controlar si está colapsado
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -30,7 +29,8 @@ export const Sidebar = () => {
       {/* 1. HEADER & TOGGLE */}
       <div className={`p-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
         {!isCollapsed && (
-          <Link href="/" className="flex items-center gap-1 overflow-hidden whitespace-nowrap">
+          // CAMBIO: href apunta a /dashboard en lugar de /
+          <Link href="/dashboard" className="flex items-center gap-1 overflow-hidden whitespace-nowrap">
             <span className="text-xl font-bold text-white tracking-tight">SUMADOTS</span>
             <span className="text-xl font-bold text-blue-500">.OS</span>
           </Link>
