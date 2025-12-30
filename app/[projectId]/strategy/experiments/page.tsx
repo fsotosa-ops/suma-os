@@ -1,101 +1,144 @@
 'use client';
 
-import { useState } from 'react';
-import { useStrategy } from '..//context/StrategyProvider';
-import { FlaskConical, Plus, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useStrategy } from '@/app/[projectId]/strategy/context/StrategyProvider';
+import { ExperimentCard } from '../components/ExperimentCard';
+import { FlaskConical, Plus, Search, Beaker, Rocket, TestTube } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ExperimentType } from '@/app/types';
 
-// Importación de Componentes Modulares
-import { ExperimentKPIs } from '..//components/ExperimentKPIs';
-import { ExperimentCard } from '..//components/ExperimentCard';
-import { CreateExperimentModal } from '..//components/CreateExperimentModal';
+export default function GrowthLabPage() {
+  const { experiments, addExperiment } = useStrategy();
+  const params = useParams();
+  const projectId = params?.projectId as string || 'suma-os';
 
-export default function ExperimentsPage() {
-  const { experiments, levers } = useStrategy();
-  const [filter, setFilter] = useState<'ALL' | 'RUNNING' | 'CONCLUDED'>('ALL');
-  const [isCreating, setIsCreating] = useState(false);
-
-  // Cálculos de KPIs
-  const totalExperiments = experiments.length;
-  const activeTests = experiments.filter(e => e.status === 'RUNNING').length;
-  const wins = experiments.filter(e => e.result === 'WIN').length;
-  const concludedCount = experiments.filter(e => e.status === 'CONCLUDED').length;
-  const winRate = concludedCount > 0 ? Math.round((wins / concludedCount) * 100) : 0;
-
-  // Filtrado
-  const filteredExperiments = experiments.filter(e => {
-      if (filter === 'ALL') return true;
-      return e.status === filter;
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    type: 'AB_TEST' as ExperimentType,
+    hypothesis: ''
   });
 
-  const getLeverName = (leverId: string) => {
-      return levers.find(l => l.id === leverId)?.name || 'Palanca Desconocida';
+  const handleCreate = () => {
+    if(!formData.name.trim()) return;
+    
+    addExperiment({
+        id: crypto.randomUUID(),
+        projectId: projectId,
+        name: formData.name,
+        type: formData.type,
+        leverId: 'generic',
+        status: 'DRAFT',
+        startDate: '',
+        hypothesis: formData.hypothesis,
+        impact: 0
+    });
+
+    setFormData({ name: '', type: 'AB_TEST', hypothesis: '' });
+    setIsDialogOpen(false);
   };
 
   return (
-    <div className="w-full h-full p-6 space-y-8 animate-in fade-in duration-500">
-      
-      {/* Header */}
-      <div className="flex justify-between items-end border-b border-zinc-800 pb-6">
-        <div>
-            <h1 className="text-3xl font-bold text-zinc-100 flex items-center gap-3">
-                <FlaskConical className="text-purple-500" /> Growth Lab
-            </h1>
-            <p className="text-zinc-500 mt-1">Registro central de hipótesis, experimentos A/B y aprendizajes.</p>
-        </div>
+    <div className="w-full p-6 md:p-8 space-y-8 animate-in fade-in duration-500">
         
-        <button 
-            onClick={() => setIsCreating(true)}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg shadow-purple-900/20 transition-all"
-        >
-            <Plus size={16}/> Nuevo Experimento
-        </button>
-      </div>
-
-      {/* KPI Section */}
-      <ExperimentKPIs 
-        activeTests={activeTests} 
-        totalExperiments={totalExperiments} 
-        winRate={winRate} 
-      />
-
-      {/* Main Content */}
-      <div className="space-y-4">
-        {/* Toolbar */}
-        <div className="flex justify-between items-center">
-            <div className="flex gap-2">
-                {['ALL', 'RUNNING', 'CONCLUDED'].map((f) => (
-                    <button 
-                        key={f}
-                        onClick={() => setFilter(f as any)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all ${filter === f ? 'bg-zinc-800 text-white border-zinc-700' : 'text-zinc-500 border-transparent hover:bg-zinc-900'}`}
-                    >
-                        {f === 'ALL' ? 'Todos' : f === 'RUNNING' ? 'En Curso' : 'Finalizados'}
-                    </button>
-                ))}
-            </div>
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
-                <input placeholder="Buscar experimento..." className="bg-zinc-900 border border-zinc-800 rounded-full pl-9 pr-4 py-1.5 text-xs text-white outline-none focus:border-zinc-700 w-64" />
-            </div>
-        </div>
-
-        {/* Grid */}
-        <div className="grid gap-4">
-            {filteredExperiments.length > 0 ? (
-                filteredExperiments.map(exp => (
-                    <ExperimentCard key={exp.id} exp={exp} getLeverName={getLeverName} />
-                ))
-            ) : (
-                <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl">
-                    <p className="text-zinc-500 text-sm">No hay experimentos en esta vista.</p>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/5 pb-6">
+            <div>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-pink-500/10 rounded-lg">
+                        <FlaskConical className="text-pink-500" size={24} />
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Growth Lab</h1>
                 </div>
-            )}
+                <p className="text-zinc-400 text-sm max-w-2xl">
+                    Centro de validación científica: Gestiona desde Tests A/B hasta MVPs y Pruebas de Concepto.
+                </p>
+            </div>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                    <button className="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-pink-900/20">
+                        <Plus size={18} /> Nuevo Experimento
+                    </button>
+                </DialogTrigger>
+                <DialogContent className="bg-[#151921] border-zinc-800 text-white">
+                    <DialogHeader>
+                        <DialogTitle>Nueva Iniciativa de Validación</DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4 pt-4">
+                        {/* Selector de Tipo */}
+                        <div className="grid grid-cols-3 gap-2">
+                            <TypeOption 
+                                active={formData.type === 'AB_TEST'} 
+                                onClick={() => setFormData({...formData, type: 'AB_TEST'})}
+                                icon={<Beaker size={16} />}
+                                label="A/B Test"
+                            />
+                            <TypeOption 
+                                active={formData.type === 'MVP'} 
+                                onClick={() => setFormData({...formData, type: 'MVP'})}
+                                icon={<Rocket size={16} />}
+                                label="MVP"
+                            />
+                            <TypeOption 
+                                active={formData.type === 'POC'} 
+                                onClick={() => setFormData({...formData, type: 'POC'})}
+                                icon={<TestTube size={16} />}
+                                label="PoC"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Nombre</label>
+                            <input 
+                                className="w-full bg-black border border-zinc-700 rounded-lg p-3 text-sm text-white focus:border-pink-500 outline-none"
+                                placeholder="Ej: MVP de suscripción premium"
+                                value={formData.name}
+                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase">Hipótesis de Negocio</label>
+                            <textarea 
+                                className="w-full bg-black border border-zinc-700 rounded-lg p-3 text-sm text-white focus:border-pink-500 outline-none min-h-[80px]"
+                                placeholder="Si lanzamos X, entonces ocurrirá Y porque..."
+                                value={formData.hypothesis}
+                                onChange={(e) => setFormData({...formData, hypothesis: e.target.value})}
+                            />
+                        </div>
+
+                        <button 
+                            onClick={handleCreate}
+                            className="w-full bg-pink-600 hover:bg-pink-500 py-3 rounded-lg font-bold transition-colors text-sm"
+                        >
+                            Crear Experimento
+                        </button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
-      </div>
 
-      {/* Modal */}
-      <CreateExperimentModal isOpen={isCreating} onClose={() => setIsCreating(false)} />
-
+        {/* Listado de Experimentos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {experiments.map(exp => (
+                <ExperimentCard key={exp.id} experiment={exp} />
+            ))}
+        </div>
     </div>
   );
 }
+
+const TypeOption = ({ active, onClick, icon, label }: any) => (
+    <button 
+        onClick={onClick}
+        className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all gap-2 ${
+            active ? 'bg-pink-500/10 border-pink-500 text-pink-400' : 'bg-black border-zinc-800 text-zinc-500 hover:border-zinc-700'
+        }`}
+    >
+        {icon}
+        <span className="text-[10px] font-bold uppercase tracking-tighter">{label}</span>
+    </button>
+);

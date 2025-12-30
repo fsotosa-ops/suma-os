@@ -1,125 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import { useProjectAdapter } from '@/app/hooks/useProjectAdapter';
-import { useStrategy } from '..//context/StrategyProvider';
-import { Activity, FlaskConical, Play } from 'lucide-react';
-
-// Módulos
-import { LeverCreator } from './components/LeverCreator';
+import React from 'react';
+import { Activity, Info } from 'lucide-react';
 import { LeverMonitor } from './components/LeverMonitor';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RevOpsLever } from '@/app/types';
+import { LeverCreator } from './components/LeverCreator';
 
 export default function RevOpsMonitorPage() {
-  const { strategyView } = useProjectAdapter();
-  const { addExperiment } = useStrategy();
-  
-  const [timeRange, setTimeRange] = useState<'1M' | '3M' | '6M' | '1Y' | 'ALL'>('6M');
-  const [selectedLever, setSelectedLever] = useState<RevOpsLever | null>(null);
-  const [newExp, setNewExp] = useState({ name: '', hypothesis: '' });
-
-  const enrichedLevers = strategyView.getLeversByRange(timeRange);
-
-  const handleLaunchExperiment = () => {
-    if (!selectedLever || !newExp.name) return;
-
-    addExperiment({
-        id: crypto.randomUUID(),
-        name: newExp.name,
-        leverId: selectedLever.id,
-        status: 'RUNNING',
-        startDate: new Date().toISOString().split('T')[0],
-    });
-
-    setSelectedLever(null);
-    setNewExp({ name: '', hypothesis: '' });
-  };
-
   return (
-    // CAMBIO: Layout full-width
-    <div className="w-full h-full p-6 space-y-8 animate-in fade-in duration-500">
+    <div className="w-full p-6 md:p-8 space-y-8 animate-in fade-in duration-500">
       
-      <div className="flex flex-col sm:flex-row justify-between items-end border-b border-zinc-800 pb-6 gap-4">
+      {/* Header de la Página */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/5 pb-6">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-100 flex items-center gap-3">
-            <Activity className="text-blue-500" /> Monitor RevOps
-          </h1>
-          <p className="text-zinc-500 mt-1">Impacto real de la tecnología en el crecimiento del negocio.</p>
+           <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Activity className="text-blue-500" size={24} />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                RevOps Monitor
+              </h1>
+           </div>
+           <p className="text-zinc-400 text-sm max-w-2xl">
+              Panel de control para tus Palancas de Crecimiento (Growth Levers). 
+              Monitorea KPIs en tiempo real y detecta anomalías.
+           </p>
         </div>
         
-        <div className="flex items-center gap-4">
-            <div className="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800">
-                {['1M', '3M', '6M', '1Y', 'ALL'].map((range) => (
-                    <button
-                        key={range}
-                        onClick={() => setTimeRange(range as any)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                            timeRange === range 
-                            ? 'bg-zinc-800 text-white shadow-sm' 
-                            : 'text-zinc-500 hover:text-zinc-300'
-                        }`}
-                    >
-                        {range}
-                    </button>
-                ))}
-            </div>
-            <LeverCreator />
+        {/* Botón para crear nueva palanca */}
+        <div className="shrink-0">
+           <LeverCreator />
         </div>
       </div>
 
-      <LeverMonitor 
-        levers={enrichedLevers} 
-        onLaunchTest={setSelectedLever} 
-      />
+      {/* Grid de Métricas (LeverMonitor ya maneja los datos internamente) */}
+      <LeverMonitor />
 
-      <Dialog open={!!selectedLever} onOpenChange={() => setSelectedLever(null)}>
-        <DialogContent className="bg-[#151921] border-zinc-800 text-white sm:max-w-md">
-            <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-xl">
-                    <FlaskConical className="text-purple-500" />
-                    Diseñar Experimento
-                </DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-                <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800">
-                    <span className="text-xs text-zinc-500 uppercase font-bold">Palanca Objetivo</span>
-                    <p className="text-sm font-medium text-white">{selectedLever?.name}</p>
-                    <p className="text-xs text-zinc-400">KPI Actual: {selectedLever?.kpiCurrent}{selectedLever?.kpiUnit}</p>
-                </div>
-
-                <div className="space-y-3">
-                    <label className="text-sm font-medium text-zinc-300">Nombre del Experimento</label>
-                    <input 
-                        className="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-white focus:border-purple-500 outline-none"
-                        placeholder="Ej: Checkout en 1 paso vs 3 pasos"
-                        value={newExp.name}
-                        onChange={(e) => setNewExp({...newExp, name: e.target.value})}
-                    />
-                </div>
-                <div className="space-y-3">
-                     <label className="text-sm font-medium text-zinc-300">Hipótesis (¿Qué esperamos?)</label>
-                     <textarea 
-                        className="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-white focus:border-purple-500 outline-none h-20 resize-none"
-                        placeholder="Si simplificamos el formulario, la conversión subirá un 2%..."
-                        value={newExp.hypothesis}
-                        onChange={(e) => setNewExp({...newExp, hypothesis: e.target.value})}
-                     />
-                </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-                <button onClick={() => setSelectedLever(null)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancelar</button>
-                <button 
-                    onClick={handleLaunchExperiment}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded text-sm font-medium flex items-center gap-2"
-                >
-                    <Play size={14} fill="currentColor" /> Lanzar Test
-                </button>
-            </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

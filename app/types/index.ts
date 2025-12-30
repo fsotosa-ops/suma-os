@@ -17,7 +17,7 @@ export interface User {
 
 export interface Sprint {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string;
   title: string;
   goal: string;
   startDate: string;
@@ -27,7 +27,7 @@ export interface Sprint {
 
 export interface Ticket {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string;
   title: string;
   description?: string;
   type: TicketType;
@@ -40,6 +40,9 @@ export interface Ticket {
 // --- STRATEGY TYPES (RevOps & Growth Lab) ---
 export type KpiRecord = { date: string; value: number; };
 
+// NUEVO: Definición de tipos de validación
+export type ExperimentType = 'AB_TEST' | 'MVP' | 'POC';
+
 export interface Variant {
   name: string;
   traffic: number; 
@@ -50,13 +53,16 @@ export interface Variant {
 
 export interface Experiment {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string;
   name: string;
+  type: ExperimentType; // NUEVO: Para distinguir la naturaleza del experimento
   leverId: string;
   status: 'DRAFT' | 'RUNNING' | 'CONCLUDED';
   result?: 'WIN' | 'LOSS' | 'INCONCLUSIVE';
   impact?: number;
   startDate: string;
+  hypothesis?: string;    // NUEVO: La apuesta estratégica
+  successCriteria?: string; // NUEVO: Qué define el éxito para MVPs/PoCs
   variants?: Variant[];
 }
 
@@ -64,14 +70,13 @@ export type ObjectiveStatus = 'On Track' | 'At Risk' | 'Off Track';
 
 export interface Objective {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string;
   title: string;
   target: string;
   progress: number;
   status: ObjectiveStatus;
   hypothesis?: string;
   connectedLeverIds?: string[];
-  // Matrices de Priorización
   impact: number; 
   effort: number;
   urgency: number; 
@@ -82,7 +87,7 @@ export interface Objective {
 
 export interface RevOpsLever {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string;
   name: string; 
   type: 'EFFICIENCY' | 'GROWTH' | 'RETENTION'; 
   kpiName: string; 
@@ -129,7 +134,7 @@ export interface Persona {
 
 export interface DiscoveryIdea {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string;
   title: string;
   description: string;
   status: 'DRAFT' | 'DISCOVERY' | 'VALIDATED' | 'KILLED';
