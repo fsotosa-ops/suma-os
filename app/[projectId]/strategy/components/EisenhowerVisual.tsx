@@ -1,6 +1,7 @@
 'use client';
 import { useStrategy } from '../context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
+// CORRECCIÓN: Ruta al archivo central de tipos
+import { Objective } from '@/app/types';
 
 interface Props {
     onSelectOkr: (okr: Objective) => void;
@@ -37,19 +38,18 @@ export const EisenhowerVisual = ({ onSelectOkr }: Props) => {
 
     return (
         <div className="grid grid-cols-2 grid-rows-2 h-full w-full gap-0.5 bg-zinc-800 rounded-lg overflow-hidden border border-zinc-800">
-            {/* Top Left: HACER (Importante + Urgente) */}
+            {/* Top Left: HACER */}
             <Quadrant title="Do (Hacer Ya)" items={doNow} color="text-green-400" border="border-green-900/20 bg-green-900/5" />
             
-            {/* Top Right: PLANIFICAR (Importante + No Urgente) */}
+            {/* Top Right: PLANIFICAR */}
             <Quadrant title="Decide (Agendar)" items={schedule} color="text-blue-400" border="border-blue-900/20 bg-blue-900/5" />
             
-            {/* Bottom Left: DELEGAR (No Importante + Urgente) */}
+            {/* Bottom Left: DELEGAR */}
             <Quadrant title="Delegate (Delegar)" items={delegate} color="text-orange-400" border="border-orange-900/20 bg-orange-900/5" />
             
-            {/* Bottom Right: ELIMINAR (No Importante + No Urgente) */}
+            {/* Bottom Right: ELIMINAR */}
             <Quadrant title="Delete (Eliminar)" items={eliminate} color="text-zinc-500" border="border-zinc-800/50 bg-zinc-900/20" />
             
-            {/* Labels de Ejes Centrales */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black border border-zinc-700 text-[8px] text-zinc-400 px-2 py-0.5 rounded-full z-10 font-mono shadow-xl pointer-events-none">
                 URGENCIA ↔ IMPORTANCIA
             </div>

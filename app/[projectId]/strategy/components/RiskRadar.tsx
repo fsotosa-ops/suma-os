@@ -1,6 +1,7 @@
 'use client';
 import { useStrategy } from '../context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
+// CORRECCIÓN: Ruta al archivo central de tipos
+import { Objective } from '@/app/types';
 
 interface Props {
     onSelectOkr: (okr: Objective) => void;
@@ -11,22 +12,18 @@ export const RiskRadar = ({ onSelectOkr }: Props) => {
 
     return (
         <div className="relative w-full h-full bg-[#0F1116] rounded-lg overflow-hidden border border-zinc-800">
-            {/* Zonas de Fondo (Degradado Radial Peligroso) */}
             <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-gradient-to-bl from-red-900/20 to-transparent rounded-bl-full pointer-events-none"></div>
             
-            {/* Grid Lines */}
             <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 divide-x divide-y divide-zinc-800/30 pointer-events-none">
                 {[...Array(16)].map((_, i) => <div key={i}></div>)}
             </div>
 
-            {/* Ejes */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] text-zinc-500 font-mono tracking-widest bg-black/50 px-2 rounded">PROBABILIDAD →</div>
             <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[9px] text-zinc-500 font-mono tracking-widest bg-black/50 px-2 rounded">SEVERIDAD →</div>
 
-            {/* Puntos de Riesgo */}
             {objectives.map((okr) => {
-                const size = 12 + (okr.impact / 10); // Tamaño burbuja según impacto
-                const riskScore = (okr.riskProbability * okr.riskSeverity) / 100; // 0-100
+                const size = 12 + (okr.impact / 10);
+                const riskScore = (okr.riskProbability * okr.riskSeverity) / 100;
                 const color = riskScore > 60 ? 'bg-red-500 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 
                               riskScore > 30 ? 'bg-orange-500 shadow-orange-900' : 'bg-green-600 shadow-green-900';
 
