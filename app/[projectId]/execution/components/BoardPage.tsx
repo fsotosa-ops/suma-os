@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useExecutionBoard } from '../hooks/useExecutionBoard';
-import { useExecution } from '../context/ExecutionProvider';
+import { useExecution } from '../context/ExecutionProvider'; // <--- Este es el que usas
 import { BoardColumn } from './BoardColumn';
 import { TicketDetailModal } from './TicketDetailModal'; 
 import { CreateSprintModal } from './CreateSprintModal';

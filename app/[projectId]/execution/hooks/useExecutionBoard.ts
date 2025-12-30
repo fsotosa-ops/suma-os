@@ -1,10 +1,12 @@
+// app/[projectId]/execution/hooks/useExecutionBoard.ts
 import { useState } from 'react';
 import { Ticket, Sprint, TicketStatus } from '../types';
 
-// Datos Mock Iniciales para pruebas
+// Datos Mock Iniciales corregidos con projectId
 const INITIAL_TICKETS: Ticket[] = [
   { 
     id: '1', 
+    projectId: 'suma-os', // <--- Agregado para cumplir con el tipo Ticket
     title: 'Investigación de Mercado', 
     type: 'EPIC', 
     status: 'TODO', 
@@ -13,6 +15,7 @@ const INITIAL_TICKETS: Ticket[] = [
   },
   { 
     id: '2', 
+    projectId: 'suma-os', // <--- Agregado para cumplir con el tipo Ticket
     title: 'Setup Inicial de Repositorio', 
     type: 'TASK', 
     status: 'DONE', 
@@ -29,6 +32,7 @@ export const useExecutionBoard = () => {
   const createSprint = (title: string, start: string, end: string, goal: string) => {
     const newSprint: Sprint = {
       id: crypto.randomUUID(),
+      projectId: 'suma-os', // Fallback o ID por defecto
       title,
       startDate: start,
       endDate: end,
