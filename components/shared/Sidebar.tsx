@@ -11,25 +11,30 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronRight,
-  Activity,    // Icono para RevOps Monitor
-  FlaskConical // Icono para Growth Lab (Experimentos)
+  Activity,
+  FlaskConical 
 } from 'lucide-react';
 import { ExecutionSidebarItem } from './ExecutionSidebarItem'; 
+import { cn } from '@/lib/utils';
 
 export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const pathname = usePathname();
 
   return (
     <aside 
-      className={`hidden md:flex flex-col border-r border-gray-800 h-screen bg-[#0B0E14] flex-shrink-0 transition-all duration-300 ease-in-out ${
+      className={cn(
+        "hidden md:flex flex-col border-r border-slate-800 h-screen bg-[#0B0E14] shrink-0 transition-all duration-300 ease-in-out z-40",
         isCollapsed ? 'w-20' : 'w-[280px]'
-      }`}
+      )}
     >
       
       {/* 1. HEADER & TOGGLE */}
-      <div className={`p-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+      <div className={cn(
+        "p-6 flex items-center",
+        isCollapsed ? 'justify-center' : 'justify-between'
+      )}>
         {!isCollapsed && (
-          // CAMBIO: href apunta a /dashboard en lugar de /
           <Link href="/dashboard" className="flex items-center gap-1 overflow-hidden whitespace-nowrap">
             <span className="text-xl font-bold text-white tracking-tight">SUMADOTS</span>
             <span className="text-xl font-bold text-blue-500">.OS</span>
@@ -37,7 +42,7 @@ export const Sidebar = () => {
         )}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-800 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-800 hover:text-white transition-colors"
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
@@ -45,12 +50,12 @@ export const Sidebar = () => {
 
       {/* 2. NAVEGACIÓN */}
       <nav className="flex-1 px-3 space-y-2 overflow-y-auto custom-scrollbar overflow-x-hidden">
-        {/* Dashboard Principal */}
         <SidebarLink 
           href="/dashboard" 
           label="Dashboard" 
           icon={<LayoutDashboard size={20} />} 
           isCollapsed={isCollapsed} 
+          active={pathname === '/dashboard'}
         />
         
         {/* GRUPO ESTRATEGIA */}
@@ -66,6 +71,7 @@ export const Sidebar = () => {
               label="Strategy Board" 
               icon={<Target size={20} />} 
               isCollapsed={isCollapsed} 
+              active={pathname === '/strategy'}
             />
             
             <SidebarLink 
@@ -73,6 +79,7 @@ export const Sidebar = () => {
               label="RevOps Monitor" 
               icon={<Activity size={20} />} 
               isCollapsed={isCollapsed} 
+              active={pathname === '/strategy/levers'}
             />
             
             <SidebarLink 
@@ -80,6 +87,7 @@ export const Sidebar = () => {
               label="Growth Lab" 
               icon={<FlaskConical size={20} />} 
               isCollapsed={isCollapsed} 
+              active={pathname === '/strategy/experiments'}
             />
         </div>
 
@@ -96,15 +104,15 @@ export const Sidebar = () => {
               label="Blueprints" 
               icon={<FileText size={20} />} 
               isCollapsed={isCollapsed} 
+              active={pathname === '/blueprints'}
             />
             
-            {/* Pasamos el estado al componente hijo (Execution tiene su propio submenú) */}
             <ExecutionSidebarItem isCollapsed={isCollapsed} />
         </div>
       </nav>
 
-      {/* 3. FOOTER */}
-      <div className="p-4 mt-auto border-t border-gray-800 space-y-4">
+      {/* 3. FOOTER PERFIL */}
+      <div className="p-4 mt-auto border-t border-slate-800 space-y-4">
         {!isCollapsed ? (
           <>
             <button className="w-full flex items-center gap-3 px-4 py-3 bg-[#1A1F2E] hover:bg-[#23293a] border border-blue-900/30 rounded-xl transition-all group whitespace-nowrap">
@@ -113,14 +121,14 @@ export const Sidebar = () => {
             </button>
 
             <div className="flex items-center gap-3 px-2 pt-2 overflow-hidden">
-              <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center text-xs font-bold text-white border border-gray-700">
+              <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-tr from-slate-700 to-slate-600 flex items-center justify-center text-xs font-bold text-white border border-slate-700">
                 PA
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">Pablo Abuhomor</p>
-                <p className="text-[10px] text-gray-500 truncate uppercase tracking-wider">WEBCARGA SPA</p>
+                <p className="text-[10px] text-slate-500 truncate uppercase tracking-wider">WEBCARGA SPA</p>
               </div>
-              <button className="text-gray-500 hover:text-white transition-colors">
+              <button className="text-slate-500 hover:text-white transition-colors">
                 <Settings size={18} />
               </button>
             </div>
@@ -130,7 +138,7 @@ export const Sidebar = () => {
              <button className="p-2 bg-[#1A1F2E] rounded-xl text-blue-400">
                <MessageSquare size={20} />
              </button>
-             <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs text-white">PA</div>
+             <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs text-white">PA</div>
           </div>
         )}
       </div>
@@ -138,23 +146,21 @@ export const Sidebar = () => {
   );
 };
 
-// Componente de Link (Optimizamos visualmente)
-const SidebarLink = ({ href, label, icon, isCollapsed }: any) => {
-  const pathname = usePathname();
-  const isActive = pathname === href;
-  
+const SidebarLink = ({ href, label, icon, isCollapsed, active }: any) => {
   return (
     <Link 
       href={href} 
-      className={`flex items-center gap-3 px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
-        isActive ? 'text-blue-400 bg-blue-500/10' : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
-      } ${isCollapsed ? 'justify-center' : ''}`}
+      className={cn(
+        "flex items-center gap-3 px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group",
+        active ? 'text-blue-400 bg-blue-500/10 border border-blue-500/20' : 'text-slate-400 hover:text-slate-100 hover:bg-white/5',
+        isCollapsed && 'justify-center'
+      )}
       title={isCollapsed ? label : undefined}
     >
-      <div className={isActive ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-300'}>
+      <div className={cn(active ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300')}>
         {icon}
       </div>
-      {!isCollapsed && <span className="whitespace-nowrap transition-opacity duration-200">{label}</span>}
+      {!isCollapsed && <span className="whitespace-nowrap">{label}</span>}
     </Link>
   );
 };
