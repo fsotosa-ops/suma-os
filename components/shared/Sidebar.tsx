@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Target, 
-  FileText, // Icono para Knowledge Center
+  GalleryVerticalEnd, // Icono para War Room
   MessageSquare, 
   Settings, 
   ChevronLeft, 
@@ -61,14 +61,16 @@ export const Sidebar = () => {
 
         <div className="pt-4 pb-1">
              {!isCollapsed && <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Operación</p>}
-             {/* CONEXIÓN AQUÍ: Knowledge Center en lugar de Blueprints */}
+             
+             {/* CAMBIO: Enlace al nuevo módulo War Room */}
              <SidebarLink 
-              href="/knowledge-center" 
-              label="Knowledge Center" 
-              icon={<FileText size={20} />} 
+              href="/war-room" 
+              label="War Room" 
+              icon={<GalleryVerticalEnd size={20} />} 
               isCollapsed={isCollapsed} 
-              active={pathname.startsWith('/knowledge-center')}
+              active={pathname.startsWith('/war-room')}
             />
+            
             <ExecutionSidebarItem isCollapsed={isCollapsed} />
         </div>
       </nav>

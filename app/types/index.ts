@@ -78,3 +78,35 @@ export type Metric = {
   unit: string; 
   status: 'ok' | 'warning' | 'error';
 };
+
+// --- WAR ROOM TYPES ---
+export type BlockType = 'h1' | 'h2' | 'text' | 'smart-metric' | 'tech-status' | 'code' | 'callout';
+
+export interface BlockContentMetric {
+  name?: string; // Opcional si usamos leverId
+  value?: string | number;
+  target?: string | number;
+  leverId?: string; // Para conectar con StrategyProvider
+}
+
+export interface BlockContentTech {
+  service: string;
+  version: string;
+  endpoint: string;
+  status: 'operational' | 'degraded' | 'down';
+}
+
+export interface Block {
+  id: string;
+  type: BlockType;
+  content: string | BlockContentMetric | BlockContentTech; 
+}
+
+export interface WarRoomDoc {
+  id: string;
+  icon: string;
+  title: string;
+  category: 'BUSINESS' | 'ENGINEERING' | 'GENERAL';
+  updatedAt: string;
+  blocks: Block[];
+}
