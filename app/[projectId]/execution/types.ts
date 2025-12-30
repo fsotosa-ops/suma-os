@@ -1,11 +1,6 @@
 // app/types/index.ts
 
-export interface Project {
-  id: string;
-  name: string;
-}
-
-// --- EXECUTION TYPES (Kanban & Sprints) ---
+// --- EXECUTION TYPES ---
 export type TicketType = 'EPIC' | 'STORY' | 'TASK' | 'BUG' | 'FEATURE';
 export type TicketStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
 
@@ -17,7 +12,7 @@ export interface User {
 
 export interface Sprint {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string; // <--- NUEVO
   title: string;
   goal: string;
   startDate: string;
@@ -27,7 +22,7 @@ export interface Sprint {
 
 export interface Ticket {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string; // <--- NUEVO
   title: string;
   description?: string;
   type: TicketType;
@@ -37,7 +32,7 @@ export interface Ticket {
   leverId?: string; 
 }
 
-// --- STRATEGY TYPES (RevOps & Growth Lab) ---
+// --- STRATEGY TYPES ---
 export type KpiRecord = { date: string; value: number; };
 
 export interface Variant {
@@ -50,7 +45,7 @@ export interface Variant {
 
 export interface Experiment {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string; // <--- NUEVO
   name: string;
   leverId: string;
   status: 'DRAFT' | 'RUNNING' | 'CONCLUDED';
@@ -64,14 +59,13 @@ export type ObjectiveStatus = 'On Track' | 'At Risk' | 'Off Track';
 
 export interface Objective {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string; // <--- NUEVO
   title: string;
   target: string;
   progress: number;
   status: ObjectiveStatus;
   hypothesis?: string;
   connectedLeverIds?: string[];
-  // Matrices de Priorización
   impact: number; 
   effort: number;
   urgency: number; 
@@ -82,7 +76,7 @@ export interface Objective {
 
 export interface RevOpsLever {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string; // <--- NUEVO
   name: string; 
   type: 'EFFICIENCY' | 'GROWTH' | 'RETENTION'; 
   kpiName: string; 
@@ -93,7 +87,7 @@ export interface RevOpsLever {
   analytics?: { score: number; techProgress: number }; 
 }
 
-// --- DISCOVERY TYPES (Product Management Workspace) ---
+// --- DISCOVERY TYPES ---
 
 export interface EmpathyMapData {
   says: string;
@@ -129,20 +123,17 @@ export interface Persona {
 
 export interface DiscoveryIdea {
   id: string;
-  projectId: string; // Nuevo
+  projectId: string; // <--- NUEVO
   title: string;
   description: string;
   status: 'DRAFT' | 'DISCOVERY' | 'VALIDATED' | 'KILLED';
-  
   personas?: Persona[];
   empathyMap?: EmpathyMapData;
   userJourney?: JourneyStep[];
   actionables?: Actionable[];
-  
   impact: number;
   effort: number;
   confidence: number;
-  
   updatedAt: string;
   tags: string[];
 }

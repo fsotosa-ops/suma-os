@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams, usePathname } from 'next/navigation';
+import { useSearchParams, usePathname, useParams } from 'next/navigation';
 import { Lightbulb, ChevronRight, Users, Map, Heart, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,18 +12,19 @@ interface Props {
 
 export const DiscoverySidebarItem = ({ isCollapsed }: Props) => {
   const pathname = usePathname();
+  const params = useParams();
   const searchParams = useSearchParams();
   const currentView = searchParams.get('view') || 'ROADMAP';
   
-  const isDiscoveryActive = pathname.startsWith('/discovery');
-  // Estado del menú (abierto por defecto si estamos en discovery)
+  const projectId = params.projectId as string || 'suma-os';
+  
+  const isDiscoveryActive = pathname.includes('/discovery');
   const [isOpen, setIsOpen] = useState(true);
 
   if (isCollapsed && isOpen) setIsOpen(false);
 
   return (
     <div className="flex flex-col gap-1">
-      {/* 1. Header Principal: Clic lleva al Roadmap (Dashboard) */}
       <div 
         className={cn(
           "group flex items-center rounded-md transition-all duration-200 cursor-pointer",
@@ -32,7 +33,7 @@ export const DiscoverySidebarItem = ({ isCollapsed }: Props) => {
         )}
       >
         <Link 
-          href="/discovery?view=ROADMAP" 
+          href={`/${projectId}/discovery?view=ROADMAP`} 
           className={cn("flex items-center gap-3", isCollapsed ? "justify-center w-full" : "flex-1")}
           title="Discovery Hub"
         >
@@ -50,29 +51,28 @@ export const DiscoverySidebarItem = ({ isCollapsed }: Props) => {
         )}
       </div>
 
-      {/* 2. Submenú: Solo los Módulos de Trabajo (Sin Roadmap redundante) */}
       {!isCollapsed && isOpen && (
         <div className="pl-4 ml-2 border-l border-zinc-800 space-y-1 mt-1 animate-in slide-in-from-top-1 duration-200">
           <SubItem 
-            href="/discovery?view=PERSONAS" 
+            href={`/${projectId}/discovery?view=PERSONAS`} 
             label="User Personas" 
             icon={<Users size={14}/>} 
             active={currentView === 'PERSONAS'} 
           />
           <SubItem 
-            href="/discovery?view=EMPATHY" 
+            href={`/${projectId}/discovery?view=EMPATHY`} 
             label="Empathy Map" 
             icon={<Heart size={14}/>} 
             active={currentView === 'EMPATHY'} 
           />
           <SubItem 
-            href="/discovery?view=JOURNEY" 
+            href={`/${projectId}/discovery?view=JOURNEY`} 
             label="User Journey" 
             icon={<Map size={14}/>} 
             active={currentView === 'JOURNEY'} 
           />
           <SubItem 
-            href="/discovery?view=PRIORITIZATION" 
+            href={`/${projectId}/discovery?view=PRIORITIZATION`} 
             label="Priorización" 
             icon={<TrendingUp size={14}/>} 
             active={currentView === 'PRIORITIZATION'} 

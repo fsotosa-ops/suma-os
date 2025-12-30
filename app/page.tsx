@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  // Redirige automáticamente de "/" a "/dashboard"
-  redirect("/dashboard");
+  // Redirige al dashboard de tu proyecto principal
+  redirect("/suma-os/dashboard");
 }

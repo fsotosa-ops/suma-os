@@ -1,72 +1,67 @@
-// app/discovery/context/DiscoveryProvider.tsx
 'use client';
 
 import React, { createContext, useContext, useState } from 'react';
-import { DiscoveryIdea } from '@/app/types';
-import { useExecution } from '@/app/execution/context/ExecutionProvider';
+import { useParams } from 'next/navigation';
+import { DiscoveryIdea } from '@/app/types'; // Los types siguen en la raíz, esto está bien.
+import { useExecution } from '../../execution/context/ExecutionProvider'; 
 
 interface DiscoveryContextType {
   ideas: DiscoveryIdea[];
   addIdea: (idea: DiscoveryIdea) => void;
   updateIdea: (id: string, updates: Partial<DiscoveryIdea>) => void;
   deleteIdea: (id: string) => void;
-  
-  // Acciones Específicas
   promoteActionable: (ideaId: string, actionId: string) => void;
 }
 
 const DiscoveryContext = createContext<DiscoveryContextType | undefined>(undefined);
 
 export function DiscoveryProvider({ children }: { children: React.ReactNode }) {
-  const { actions: executionActions } = useExecution(); // Conexión con Execution
+  const { actions: executionActions } = useExecution();
+  const params = useParams();
+  const projectId = params?.projectId as string || 'default';
 
-  // Datos iniciales actualizados con la estructura completa (Personas, Tags, etc.)
-  const [ideas, setIdeas] = useState<DiscoveryIdea[]>([
+  // Mock Data
+  const [allIdeas, setAllIdeas] = useState<DiscoveryIdea[]>([
     {
       id: '1',
+      projectId: 'suma-os',
       title: 'Nuevo Onboarding B2B',
-      description: 'Rediseño del flujo de entrada para empresas grandes.',
+      description: 'Rediseño del flujo de entrada.',
       status: 'DISCOVERY',
-      impact: 80, 
-      effort: 50, 
-      confidence: 60,
+      impact: 80, effort: 50, confidence: 60,
       updatedAt: 'Hace 2h',
-      
-      // Módulos Inicializados
-      personas: [], // <-- Campo Nuevo
-      empathyMap: { says: '', thinks: '', does: '', feels: '' },
-      userJourney: [],
-      actionables: [],
-      tags: ['Growth', 'UX'] // <-- Campo Nuevo
+      personas: [], empathyMap: { says: '', thinks: '', does: '', feels: '' }, userJourney: [], actionables: [], tags: ['Growth']
     }
   ]);
 
-  const addIdea = (idea: DiscoveryIdea) => setIdeas(prev => [idea, ...prev]); // Agregamos al principio
+  const ideas = allIdeas.filter(idea => idea.projectId === projectId);
+
+  const addIdea = (idea: DiscoveryIdea) => {
+    setAllIdeas(prev => [{ ...idea, projectId }, ...prev]);
+  };
   
   const updateIdea = (id: string, updates: Partial<DiscoveryIdea>) => 
-    setIdeas(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
+    setAllIdeas(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
     
   const deleteIdea = (id: string) => 
-    setIdeas(prev => prev.filter(i => i.id !== id));
+    setAllIdeas(prev => prev.filter(i => i.id !== id));
 
-  // La magia: Convertir un Accionable de Discovery en un Ticket de Ejecución
   const promoteActionable = (ideaId: string, actionId: string) => {
-    const idea = ideas.find(i => i.id === ideaId);
+    const idea = allIdeas.find(i => i.id === ideaId);
     if(!idea || !idea.actionables) return;
 
     const action = idea.actionables.find(a => a.id === actionId);
     if(!action) return;
 
-    // 1. Crear en Backlog Real (Execution Module)
     executionActions.createTicket({
-      title: `[From Discovery] ${action.title}`,
-      description: `Originado en la iniciativa: ${idea.title}`,
+      // projectId se inyecta automáticamente en el ExecutionProvider ahora
+      title: `[Discovery] ${action.title}`,
+      description: `Origen: ${idea.title}`,
       type: 'STORY',
       status: 'TODO',
       points: 0
     });
 
-    // 2. Marcar como promovido en Discovery
     const updatedActionables = idea.actionables.map(a => 
       a.id === actionId ? { ...a, status: 'Promoted' as const } : a
     );
