@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useDiscovery } from './context/DiscoveryProvider';
+import { useSearchParams, useRouter, useParams } from 'next/navigation'; // Agregamos useParams
+import { useDiscovery } from './context/DiscoveryProvider'; // RUTA CORREGIDA
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Users, Map, Heart, Lightbulb, Plus, List, CheckSquare, Calendar, User
@@ -14,7 +14,7 @@ import { DiscoveryWorkspace } from './components/DiscoveryWorkspace';
 // Importamos la vista Roadmap
 import { RoadmapView } from './components/views/RoadmapView';
 
-// --- VISTAS AUXILIARES (Solo usadas en el index) ---
+// --- VISTAS AUXILIARES ---
 
 const PrioritizationView = ({ ideas, onSelect }: any) => {
   const scoredIdeas = ideas.map((idea: any) => ({
@@ -68,13 +68,15 @@ const GridView = ({ ideas, onSelect, mode }: { ideas: any[], onSelect: any, mode
     </div>
 );
 
-// --- COMPONENTE PRINCIPAL ---
+// --- COMPONENTE INTERNO ---
 
 function DiscoveryContent() {
   const { ideas, addIdea, updateIdea, deleteIdea, promoteActionable } = useDiscovery();
   const searchParams = useSearchParams();
   const router = useRouter();
-
+  const params = useParams(); // Obtenemos el projectId de la URL
+  
+  const projectId = params?.projectId as string || 'suma-os';
   const currentView = searchParams.get('view') || 'ROADMAP';
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -82,21 +84,34 @@ function DiscoveryContent() {
 
   const activeIdea = ideas.find(i => i.id === selectedIdeaId);
 
-  const setViewMode = (view: string) => router.push(`/discovery?view=${view}`);
+  const setViewMode = (view: string) => router.push(`/${projectId}/discovery?view=${view}`);
   
-  // Manejador: Selecciona idea y opcionalmente define la sección inicial
   const handleSelectIdea = (id: string, section?: string) => {
       setSelectedIdeaId(id);
-      // Nota: La sección se pasa como prop al Workspace, no necesitamos estado local aquí para eso
   };
 
   const handleConfirmCreate = () => {
     if (!newTitle.trim()) return;
+
+    // SOLUCIÓN: Agregamos el projectId obligatorio al crear la idea
     addIdea({
-        id: crypto.randomUUID(), title: newTitle, description: '', status: 'DRAFT', impact: 50, effort: 50, confidence: 50, updatedAt: 'Justo ahora',
-        personas: [], empathyMap: { says: '', thinks: '', does: '', feels: '' }, userJourney: [], actionables: [], tags: []
+        id: crypto.randomUUID(),
+        projectId: projectId, // <--- CAMBIO CLAVE PARA VERCEL
+        title: newTitle,
+        description: '',
+        status: 'DRAFT',
+        impact: 50,
+        effort: 50,
+        confidence: 50,
+        updatedAt: new Date().toLocaleDateString(),
+        personas: [],
+        empathyMap: { says: '', thinks: '', does: '', feels: '' },
+        userJourney: [],
+        actionables: [],
+        tags: []
     });
-    setNewTitle(''); setIsCreateOpen(false);
+    setNewTitle(''); 
+    setIsCreateOpen(false);
   };
 
   return (
@@ -110,23 +125,21 @@ function DiscoveryContent() {
         </div>
         <div className="flex items-center gap-3">
             <div className="bg-zinc-900 p-1 rounded-lg border border-zinc-800 flex">
-                <button onClick={() => setViewMode('ROADMAP')} className={cn("p-2 rounded transition-all", currentView === 'ROADMAP' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300')}><Calendar size={16}/></button>
-                <button onClick={() => setViewMode('LIST')} className={cn("p-2 rounded transition-all", currentView === 'LIST' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300')}><List size={16}/></button>
+                <button onClick={() => setViewMode('ROADMAP')} className={cn("p-2 rounded transition-all", currentView === 'ROADMAP' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-300')}><Calendar size={16}/></button>
+                <button onClick={() => setViewMode('LIST')} className={cn("p-2 rounded transition-all", currentView === 'LIST' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-600 hover:text-zinc-300')}><List size={16}/></button>
             </div>
             <button onClick={() => setIsCreateOpen(true)} className="bg-pink-600 hover:bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-pink-900/20"><Plus size={16} /> Nueva Idea</button>
         </div>
       </div>
 
-      {/* Renderizado de Vistas (Listados) */}
+      {/* Listados */}
       {currentView === 'ROADMAP' && <RoadmapView ideas={ideas} onSelect={(id: string) => handleSelectIdea(id, 'personas')} />}
-      
       {currentView === 'PRIORITIZATION' && <PrioritizationView ideas={ideas} onSelect={handleSelectIdea} />}
-      
       {['LIST', 'PERSONAS', 'EMPATHY', 'JOURNEY'].includes(currentView) && (
         <GridView ideas={ideas} onSelect={handleSelectIdea} mode={currentView} />
       )}
 
-      {/* Modal Crear (Pequeño) */}
+      {/* Modal Crear */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="bg-[#151921] border-zinc-800 text-white sm:max-w-md">
             <DialogHeader><DialogTitle>Nueva Iniciativa</DialogTitle></DialogHeader>
@@ -138,7 +151,7 @@ function DiscoveryContent() {
         </DialogContent>
       </Dialog>
 
-      {/* WORKSPACE DRAWER (Llamada al componente modularizado) */}
+      {/* WORKSPACE DRAWER */}
       <Dialog open={!!activeIdea} onOpenChange={(open) => !open && setSelectedIdeaId(null)}>
          {activeIdea && (
             <DiscoveryWorkspace 
@@ -146,7 +159,6 @@ function DiscoveryContent() {
                 onClose={() => setSelectedIdeaId(null)}
                 onUpdate={updateIdea}
                 onPromoteActionable={promoteActionable}
-                // Determinamos la sección inicial basada en la vista actual
                 initialSection={
                     ['PERSONAS', 'EMPATHY', 'JOURNEY', 'PRIORITIZATION'].includes(currentView) 
                     ? currentView.toLowerCase() 
@@ -158,6 +170,8 @@ function DiscoveryContent() {
     </div>
   );
 }
+
+// --- EXPORTACIÓN PRINCIPAL ---
 
 export default function DiscoveryPage() {
   return (
