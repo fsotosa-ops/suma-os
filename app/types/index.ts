@@ -14,9 +14,8 @@ export interface Sprint {
 
 export type KpiRecord = { date: string; value: number; };
 
-// --- NUEVO: Estructura para Variantes A/B ---
 export interface Variant {
-  name: string; // "Control", "Variante B"
+  name: string;
   traffic: number; 
   conversions: number; 
   visitors: number;
@@ -31,7 +30,7 @@ export interface Experiment {
   result?: 'WIN' | 'LOSS' | 'INCONCLUSIVE';
   impact?: number;
   startDate: string;
-  variants?: Variant[]; // <--- IMPORTANTE: Campo nuevo
+  variants?: Variant[];
 }
 
 export type ObjectiveStatus = 'On Track' | 'At Risk' | 'Off Track';
@@ -80,13 +79,14 @@ export type Metric = {
 };
 
 // --- WAR ROOM TYPES ---
-export type BlockType = 'h1' | 'h2' | 'text' | 'smart-metric' | 'tech-status' | 'code' | 'callout';
+// CAMBIO: Añadidos 'action-trigger' y 'ai-summary'
+export type BlockType = 'h1' | 'h2' | 'text' | 'smart-metric' | 'tech-status' | 'code' | 'callout' | 'action-trigger' | 'ai-summary';
 
 export interface BlockContentMetric {
-  name?: string; // Opcional si usamos leverId
+  name?: string; 
   value?: string | number;
   target?: string | number;
-  leverId?: string; // Para conectar con StrategyProvider
+  leverId?: string; 
 }
 
 export interface BlockContentTech {
@@ -96,10 +96,23 @@ export interface BlockContentTech {
   status: 'operational' | 'degraded' | 'down';
 }
 
+// CAMBIO: Nuevas interfaces para el contenido de los nuevos bloques
+export interface BlockContentAction {
+  title: string;
+  status: 'pending' | 'created';
+  ticketId?: string;
+}
+
+export interface BlockContentAi {
+  prompt: string;
+  response: string;
+}
+
 export interface Block {
   id: string;
   type: BlockType;
-  content: string | BlockContentMetric | BlockContentTech; 
+  // CAMBIO: Ampliado el tipo de contenido para incluir acciones e IA
+  content: string | BlockContentMetric | BlockContentTech | BlockContentAction | BlockContentAi; 
 }
 
 export interface WarRoomDoc {
