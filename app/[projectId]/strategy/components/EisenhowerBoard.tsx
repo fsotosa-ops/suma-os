@@ -1,6 +1,7 @@
 'use client';
 import { useStrategy } from '../context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
+// CORRECCIÓN: Importar desde el archivo central de tipos
+import { Objective } from '@/app/types';
 
 interface Props {
     onSelectOkr: (okr: Objective) => void;

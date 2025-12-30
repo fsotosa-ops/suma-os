@@ -1,8 +1,8 @@
-// app/strategy/components/StrategicMatrix.tsx
 'use client';
 
 import { useStrategy } from '../context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
+// CORRECCIÓN: Importar desde el archivo central de tipos
+import { Objective } from '@/app/types';
 
 interface Props {
   mode: 'PRIORITIZATION' | 'EISENHOWER' | 'RISK';

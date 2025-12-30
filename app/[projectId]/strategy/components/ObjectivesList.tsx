@@ -1,8 +1,9 @@
 'use client';
 
 import { useStrategy } from '../context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
-import { Target, TrendingUp, AlertCircle, CheckCircle2, MoreHorizontal, ArrowRight } from 'lucide-react';
+// CORRECCIÓN: Importar desde el archivo central de tipos
+import { Objective } from '@/app/types';
+import { Target, TrendingUp, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 
 interface Props {
     onSelectOkr: (okr: Objective) => void;
@@ -22,7 +23,6 @@ export const ObjectivesList = ({ onSelectOkr }: Props) => {
 
     return (
         <div className="h-full flex flex-col">
-            {/* Header de la Tabla */}
             <div className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-zinc-800 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
                 <div className="col-span-5">Objetivo & Hipótesis</div>
                 <div className="col-span-2 text-center">Estado</div>
@@ -31,7 +31,6 @@ export const ObjectivesList = ({ onSelectOkr }: Props) => {
                 <div className="col-span-1 text-right">Acción</div>
             </div>
 
-            {/* Cuerpo de la Lista */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {objectives.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full text-zinc-500 gap-2 opacity-50">
@@ -46,7 +45,6 @@ export const ObjectivesList = ({ onSelectOkr }: Props) => {
                         onClick={() => onSelectOkr(okr)}
                         className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-zinc-800/50 hover:bg-zinc-900/40 transition-colors cursor-pointer group items-center"
                     >
-                        {/* 1. Título e Hipótesis */}
                         <div className="col-span-5">
                             <div className="flex items-center gap-3">
                                 <div className={`p-1.5 rounded-lg border ${getStatusColor(okr.status)}`}>
@@ -59,7 +57,6 @@ export const ObjectivesList = ({ onSelectOkr }: Props) => {
                             </div>
                         </div>
 
-                        {/* 2. Estado (Badge) */}
                         <div className="col-span-2 flex justify-center">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1.5 ${getStatusColor(okr.status)}`}>
                                 {okr.status === 'On Track' && <CheckCircle2 size={10} />}
@@ -69,7 +66,6 @@ export const ObjectivesList = ({ onSelectOkr }: Props) => {
                             </span>
                         </div>
 
-                        {/* 3. Barra de Progreso */}
                         <div className="col-span-2 px-2">
                             <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
                                 <span>{okr.progress}%</span>
@@ -82,7 +78,6 @@ export const ObjectivesList = ({ onSelectOkr }: Props) => {
                             </div>
                         </div>
 
-                        {/* 4. Métricas de Impacto */}
                         <div className="col-span-2 flex justify-center gap-2">
                             <div className="text-center">
                                 <span className="block text-[10px] text-zinc-600 uppercase">IMP</span>
@@ -95,7 +90,6 @@ export const ObjectivesList = ({ onSelectOkr }: Props) => {
                             </div>
                         </div>
 
-                        {/* 5. Acción */}
                         <div className="col-span-1 flex justify-end">
                             <button className="p-1.5 text-zinc-600 hover:text-white hover:bg-zinc-800 rounded transition-all opacity-0 group-hover:opacity-100">
                                 <ArrowRight size={16} />

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useStrategy } from './context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
+// CORRECCIÓN: Importar desde el archivo central de tipos
+import { Objective } from '@/app/types';
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
@@ -20,22 +21,15 @@ import { StrategyEditor } from './components/StrategyEditor';
 export default function StrategyPage() {
   const { objectives, levers, addObjective } = useStrategy();
   
-  // 1. Estado del Layout (Orden de los widgets)
   const [layout, setLayout] = useState(['roi', 'eisenhower', 'risk', 'list']);
   const [hiddenWidgets, setHiddenWidgets] = useState<string[]>([]);
-  
-  // 2. Estado de Expansión (Bento Mode)
   const [expandedWidget, setExpandedWidget] = useState<string | null>(null);
-
-  // 3. Estados de Creación y Edición
   const [selectedOkr, setSelectedOkr] = useState<Objective | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [newOkr, setNewOkr] = useState<{title: string; target: string; connectedLeverIds: string[]}>({ title: '', target: '', connectedLeverIds: [] });
 
-  // --- LOGICA DRAG & DROP (Nativa HTML5) ---
   const handleDragStart = (e: React.DragEvent, id: string) => {
     e.dataTransfer.setData('widgetId', id);
-    // Efecto visual al arrastrar
     e.currentTarget.classList.add('opacity-50');
   };
 
@@ -44,7 +38,7 @@ export default function StrategyPage() {
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Necesario para permitir el drop
+    e.preventDefault();
   };
 
   const handleDrop = (e: React.DragEvent, targetId: string) => {
@@ -56,21 +50,18 @@ export default function StrategyPage() {
     const draggedIndex = newLayout.indexOf(draggedId);
     const targetIndex = newLayout.indexOf(targetId);
 
-    // Reordenar array
     newLayout.splice(draggedIndex, 1);
     newLayout.splice(targetIndex, 0, draggedId);
     
     setLayout(newLayout);
   };
 
-  // --- LOGICA DE NEGOCIO ---
   const toggleWidgetVisibility = (id: string) => {
     if (hiddenWidgets.includes(id)) {
         setHiddenWidgets(prev => prev.filter(w => w !== id));
         if (!layout.includes(id)) setLayout(prev => [...prev, id]);
     } else {
         setHiddenWidgets(prev => [...prev, id]);
-        // Si ocultamos el widget expandido, salir del modo expansión
         if (expandedWidget === id) setExpandedWidget(null);
     }
   };
@@ -78,7 +69,9 @@ export default function StrategyPage() {
   const handleCreate = () => {
     if (!newOkr.title) return;
     addObjective({
-      id: crypto.randomUUID(), title: newOkr.title, target: newOkr.target || 'N/A', progress: 0, status: 'On Track',
+      id: crypto.randomUUID(), 
+      projectId: 'auto-assigned', // El Provider lo manejará
+      title: newOkr.title, target: newOkr.target || 'N/A', progress: 0, status: 'On Track',
       impact: 50, effort: 50, urgency: 50, importance: 50, riskProbability: 20, riskSeverity: 20,
       connectedLeverIds: newOkr.connectedLeverIds, hypothesis: ''
     });
@@ -93,7 +86,6 @@ export default function StrategyPage() {
     });
   };
 
-  // --- CONFIGURACIÓN DE WIDGETS ---
   const WIDGETS_CONFIG: any = {
       roi: {
           title: "Quick Wins",
@@ -117,7 +109,6 @@ export default function StrategyPage() {
           title: "Inventario Estratégico",
           icon: <ListIcon size={16}/>,
           color: "text-zinc-400",
-          // Aquí usamos el componente premium que creamos
           component: <ObjectivesList onSelectOkr={setSelectedOkr} />
       }
   };
@@ -125,7 +116,6 @@ export default function StrategyPage() {
   return (
     <div className="w-full h-full min-h-screen bg-[#020617] p-4 md:p-8 flex flex-col gap-6 animate-in fade-in">
       
-      {/* HEADER + CONTROLES */}
       <div className="flex flex-col md:flex-row justify-between items-end border-b border-zinc-800 pb-6 gap-4 shrink-0">
         <div>
             <h1 className="text-3xl font-bold text-zinc-100">Strategy Board</h1>
@@ -133,7 +123,6 @@ export default function StrategyPage() {
         </div>
         
         <div className="flex items-center gap-3">
-            {/* Toolbar de Widgets */}
             <div className="flex bg-zinc-900/50 p-1 rounded-lg border border-zinc-800">
                 {['roi', 'eisenhower', 'risk', 'list'].map(id => (
                     <button 
@@ -158,7 +147,6 @@ export default function StrategyPage() {
         </div>
       </div>
 
-      {/* PANEL DE CREACIÓN (Colapsable) */}
       {isCreating && (
          <Card className="p-6 bg-zinc-950 border border-zinc-800 relative overflow-hidden animate-in slide-in-from-top-4 shadow-2xl shrink-0">
              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
@@ -170,7 +158,7 @@ export default function StrategyPage() {
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2 space-y-2">
                         <label className="text-xs text-zinc-500 font-bold uppercase">Título</label>
-                        <input autoFocus className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-sm text-white focus:border-indigo-500 outline-none transition-all" value={newOkr.title} onChange={e => setNewOkr({...newOkr, title: e.target.value})} placeholder="Ej: Dominar el mercado latinoamericano..." />
+                        <input autoFocus className="w-full bg-black border border-zinc-800 rounded-lg p-3 text-sm text-white focus:border-indigo-500 outline-none transition-all" value={newOkr.title} onChange={e => setNewOkr({...newOkr, title: e.target.value})} placeholder="Ej: Dominar el mercado..." />
                     </div>
                     <div className="space-y-2">
                         <label className="text-xs text-zinc-500 font-bold uppercase">Meta (KPI)</label>
@@ -197,38 +185,28 @@ export default function StrategyPage() {
          </Card>
       )}
 
-      {/* --- GRID DE WIDGETS (Drag & Drop + Bento Expansion) --- */}
-      {/* `grid-flow-dense` es la clave para que se reacomoden al expandir uno */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-[420px] grid-flow-dense flex-1 pb-10">
-          
           {layout.map((id) => {
               if (hiddenWidgets.includes(id)) return null;
-              
               const isExpanded = expandedWidget === id;
               const config = WIDGETS_CONFIG[id];
-
-              // Si es el widget de lista y no hay nada expandido, que ocupe ancho completo en desktop
               const defaultColSpan = id === 'list' && !expandedWidget ? 'md:col-span-2 xl:col-span-3' : 'col-span-1';
 
               return (
                 <div 
                     key={id}
-                    draggable={!isExpanded} // Deshabilitar arrastre si está expandido
+                    draggable={!isExpanded}
                     onDragStart={(e) => handleDragStart(e, id)}
                     onDragEnd={handleDragEnd}
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, id)}
                     className={`transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1.0)] 
-                        ${isExpanded 
-                            ? 'md:col-span-2 md:row-span-2 z-10' // Clase para expandir
-                            : `${defaultColSpan}` // Clase normal
-                        }
+                        ${isExpanded ? 'md:col-span-2 md:row-span-2 z-10' : `${defaultColSpan}`}
                     `}
                 >
                     <Card className={`h-full bg-[#0A0A0A] border flex flex-col overflow-hidden group
                         ${isExpanded ? 'border-zinc-600 shadow-2xl' : 'border-zinc-800 hover:border-zinc-700 shadow-sm'}
                     `}>
-                        {/* Header del Widget */}
                         <div className="p-4 border-b border-zinc-800/50 flex justify-between items-center bg-[#0F1116] shrink-0 cursor-grab active:cursor-grabbing">
                             <div className="flex items-center gap-2">
                                 <GripVertical size={14} className="text-zinc-600 group-hover:text-zinc-400 transition-colors"/>
@@ -236,26 +214,21 @@ export default function StrategyPage() {
                                     {config.icon} {config.title}
                                 </span>
                             </div>
-                            
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button 
                                     onClick={() => setExpandedWidget(isExpanded ? null : id)}
                                     className="p-1.5 hover:bg-zinc-800 rounded text-zinc-500 hover:text-white transition-colors"
-                                    title={isExpanded ? "Restaurar" : "Maximizar"}
                                 >
                                     {isExpanded ? <Minimize2 size={16}/> : <Maximize2 size={16}/>}
                                 </button>
                                 <button 
                                     onClick={() => toggleWidgetVisibility(id)}
                                     className="p-1.5 hover:bg-zinc-800 rounded text-zinc-500 hover:text-red-400 transition-colors"
-                                    title="Ocultar"
                                 >
                                     <X size={16}/>
                                 </button>
                             </div>
                         </div>
-                        
-                        {/* Cuerpo del Widget */}
                         <div className="flex-1 p-0 overflow-hidden relative">
                             {config.component}
                         </div>
@@ -265,7 +238,6 @@ export default function StrategyPage() {
           })}
       </div>
 
-      {/* MODAL DE EDICIÓN */}
       <Dialog open={!!selectedOkr} onOpenChange={() => setSelectedOkr(null)}>
         <DialogContent className="bg-[#151921] border-zinc-800 text-white sm:max-w-lg">
             <DialogHeader>
@@ -274,7 +246,6 @@ export default function StrategyPage() {
             {selectedOkr && <StrategyEditor okr={selectedOkr} onClose={() => setSelectedOkr(null)} />}
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
