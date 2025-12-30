@@ -6,13 +6,14 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Target, 
-  GalleryVerticalEnd, // Icono para War Room
+  Activity, 
+  FlaskConical, 
+  Lightbulb, 
+  BookOpen, 
   MessageSquare, 
   Settings, 
   ChevronLeft, 
-  ChevronRight,
-  Activity,
-  FlaskConical 
+  ChevronRight
 } from 'lucide-react';
 import { ExecutionSidebarItem } from './ExecutionSidebarItem'; 
 import { cn } from '@/lib/utils';
@@ -54,27 +55,36 @@ export const Sidebar = () => {
         
         <div className="pt-4 pb-1">
             {!isCollapsed && <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Estrategia</p>}
-            <SidebarLink href="/strategy" label="Strategy Board" icon={<Target size={20} />} isCollapsed={isCollapsed} active={pathname.startsWith('/strategy')} />
+            <SidebarLink href="/strategy" label="Strategy Board" icon={<Target size={20} />} isCollapsed={isCollapsed} active={pathname === '/strategy'} />
             <SidebarLink href="/strategy/levers" label="RevOps Monitor" icon={<Activity size={20} />} isCollapsed={isCollapsed} active={pathname === '/strategy/levers'} />
             <SidebarLink href="/strategy/experiments" label="Growth Lab" icon={<FlaskConical size={20} />} isCollapsed={isCollapsed} active={pathname === '/strategy/experiments'} />
         </div>
 
+        {/* CAMBIO DE NOMBRE AQUÍ */}
         <div className="pt-4 pb-1">
-             {!isCollapsed && <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Operación</p>}
+             {!isCollapsed && <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Project Management</p>}
              
-             {/* CAMBIO: Enlace al nuevo módulo War Room */}
              <SidebarLink 
-              href="/war-room" 
-              label="War Room" 
-              icon={<GalleryVerticalEnd size={20} />} 
+              href="/discovery" 
+              label="Discovery" 
+              icon={<Lightbulb size={20} />} 
               isCollapsed={isCollapsed} 
-              active={pathname.startsWith('/war-room')}
+              active={pathname.startsWith('/discovery')} 
             />
-            
+
             <ExecutionSidebarItem isCollapsed={isCollapsed} />
+            
+            <SidebarLink 
+              href="/knowledge-center" 
+              label="Knowledge Center" 
+              icon={<BookOpen size={20} />} 
+              isCollapsed={isCollapsed} 
+              active={pathname.startsWith('/knowledge-center')} 
+            />
         </div>
       </nav>
 
+      {/* Footer... */}
       <div className="p-4 mt-auto border-t border-white/[0.06] space-y-4">
         {!isCollapsed && (
           <button className="w-full flex items-center gap-3 px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl transition-all group whitespace-nowrap">

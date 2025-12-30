@@ -1,7 +1,14 @@
+// app/types/index.ts
+
+// --- EXECUTION TYPES (Kanban & Sprints) ---
 export type TicketType = 'EPIC' | 'STORY' | 'TASK' | 'BUG' | 'FEATURE';
 export type TicketStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
 
-export interface User { id: string; name: string; avatarUrl?: string; }
+export interface User { 
+  id: string; 
+  name: string; 
+  avatarUrl?: string; 
+}
 
 export interface Sprint {
   id: string;
@@ -12,6 +19,18 @@ export interface Sprint {
   isActive: boolean;
 }
 
+export interface Ticket {
+  id: string;
+  title: string;
+  description?: string;
+  type: TicketType;
+  status: TicketStatus;
+  points: number; 
+  sprintId?: string;
+  leverId?: string; 
+}
+
+// --- STRATEGY TYPES (RevOps & Growth Lab) ---
 export type KpiRecord = { date: string; value: number; };
 
 export interface Variant {
@@ -43,9 +62,13 @@ export interface Objective {
   status: ObjectiveStatus;
   hypothesis?: string;
   connectedLeverIds?: string[];
-  impact: number; effort: number;
-  urgency: number; importance: number;
-  riskProbability: number; riskSeverity: number;
+  // Matrices de Priorización
+  impact: number; 
+  effort: number;
+  urgency: number; 
+  importance: number;
+  riskProbability: number; 
+  riskSeverity: number;
 }
 
 export interface RevOpsLever {
@@ -60,66 +83,57 @@ export interface RevOpsLever {
   analytics?: { score: number; techProgress: number }; 
 }
 
-export interface Ticket {
+// --- DISCOVERY TYPES (Product Management Workspace) ---
+
+export interface EmpathyMapData {
+  says: string;
+  thinks: string;
+  does: string;
+  feels: string;
+}
+
+export interface JourneyStep {
+  id: string;
+  stage: string;
+  action: string;
+  painPoint: string;
+  sentiment: 'happy' | 'neutral' | 'sad';
+}
+
+export interface Actionable {
   id: string;
   title: string;
-  description?: string;
-  type: TicketType;
-  status: TicketStatus;
-  points: number; 
-  sprintId?: string;
-  leverId?: string; 
+  priority: 'High' | 'Medium' | 'Low';
+  status: 'Open' | 'Promoted'; // Promoted = Enviado a Jira/Backlog
 }
 
-export type Metric = { 
-  name: string; 
-  value: number; 
-  unit: string; 
-  status: 'ok' | 'warning' | 'error';
-};
-
-// --- WAR ROOM TYPES ---
-// CAMBIO: Añadidos 'action-trigger' y 'ai-summary'
-export type BlockType = 'h1' | 'h2' | 'text' | 'smart-metric' | 'tech-status' | 'code' | 'callout' | 'action-trigger' | 'ai-summary';
-
-export interface BlockContentMetric {
-  name?: string; 
-  value?: string | number;
-  target?: string | number;
-  leverId?: string; 
-}
-
-export interface BlockContentTech {
-  service: string;
-  version: string;
-  endpoint: string;
-  status: 'operational' | 'degraded' | 'down';
-}
-
-// CAMBIO: Nuevas interfaces para el contenido de los nuevos bloques
-export interface BlockContentAction {
-  title: string;
-  status: 'pending' | 'created';
-  ticketId?: string;
-}
-
-export interface BlockContentAi {
-  prompt: string;
-  response: string;
-}
-
-export interface Block {
+export interface Persona {
   id: string;
-  type: BlockType;
-  // CAMBIO: Ampliado el tipo de contenido para incluir acciones e IA
-  content: string | BlockContentMetric | BlockContentTech | BlockContentAction | BlockContentAi; 
+  name: string;
+  role: string;
+  bio: string;
+  goals: string[];
+  frustrations: string[];
+  avatarColor: string;
 }
 
-export interface WarRoomDoc {
+export interface DiscoveryIdea {
   id: string;
-  icon: string;
   title: string;
-  category: 'BUSINESS' | 'ENGINEERING' | 'GENERAL';
+  description: string;
+  status: 'DRAFT' | 'DISCOVERY' | 'VALIDATED' | 'KILLED';
+  
+  // Módulos internos
+  personas?: Persona[];
+  empathyMap?: EmpathyMapData;
+  userJourney?: JourneyStep[];
+  actionables?: Actionable[];
+  
+  // Scoring
+  impact: number;      // 0-100 (Business Value)
+  effort: number;      // 0-100 (Complexity)
+  confidence: number;  // 0-100 (ICE/RICE Score)
+  
   updatedAt: string;
-  blocks: Block[];
+  tags: string[];
 }

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, LayoutDashboard, Target, FileText, Activity, FlaskConical } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Target, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const MobileSidebar = () => {
@@ -25,12 +25,13 @@ export const MobileSidebar = () => {
         </div>
         <nav className="p-4 space-y-2">
           <MobileLink href="/dashboard" label="Dashboard" icon={<LayoutDashboard size={20}/>} active={pathname === '/dashboard'} onClick={closeMenu} />
-          {/* GRUPO ESTRATEGIA */}
+          
           <div className="py-2"><p className="px-4 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Estrategia</p>
             <MobileLink href="/strategy" label="Strategy" icon={<Target size={20}/>} active={pathname.startsWith('/strategy')} onClick={closeMenu} />
           </div>
-          {/* GRUPO OPERACIÓN */}
-          <div className="py-2"><p className="px-4 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Operación</p>
+          
+          {/* CAMBIO DE NOMBRE AQUÍ */}
+          <div className="py-2"><p className="px-4 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Project Management</p>
             <MobileLink href="/knowledge-center" label="Knowledge Center" icon={<FileText size={20}/>} active={pathname.startsWith('/knowledge-center')} onClick={closeMenu} />
           </div>
         </nav>
