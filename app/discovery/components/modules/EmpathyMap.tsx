@@ -11,28 +11,24 @@ export const EmpathyMap = ({ data, onChange }: Props) => {
     onChange({ ...data, [field]: value });
   };
 
+  const Area = ({ label, field }: any) => (
+    <div className="bg-zinc-900/30 p-6 border border-zinc-800 flex flex-col min-h-[240px] hover:bg-zinc-900/50 transition-colors group">
+        <span className="text-xs font-bold text-zinc-500 uppercase mb-3 group-hover:text-pink-500 transition-colors">{label}</span>
+        <textarea 
+            className="flex-1 bg-transparent resize-none outline-none text-sm text-zinc-300 placeholder:text-zinc-700 leading-relaxed" 
+            placeholder="Escribe aquí..." 
+            value={data[field as keyof EmpathyMapData] || ''} 
+            onChange={e => handleChange(field, e.target.value)} 
+        />
+    </div>
+  );
+
   return (
-    <div className="grid grid-cols-2 gap-4 h-[400px]">
-      <div className="bg-zinc-900/50 p-4 rounded-tl-xl border border-zinc-800 flex flex-col">
-        <span className="text-xs font-bold text-zinc-500 uppercase mb-2">Says (Dice)</span>
-        <textarea className="flex-1 bg-transparent resize-none outline-none text-sm text-zinc-300 placeholder:text-zinc-700" 
-          placeholder="¿Qué dice el usuario?" value={data.says} onChange={e => handleChange('says', e.target.value)} />
-      </div>
-      <div className="bg-zinc-900/50 p-4 rounded-tr-xl border border-zinc-800 flex flex-col">
-        <span className="text-xs font-bold text-zinc-500 uppercase mb-2">Thinks (Piensa)</span>
-        <textarea className="flex-1 bg-transparent resize-none outline-none text-sm text-zinc-300 placeholder:text-zinc-700" 
-          placeholder="¿Qué está pensando realmente?" value={data.thinks} onChange={e => handleChange('thinks', e.target.value)} />
-      </div>
-      <div className="bg-zinc-900/50 p-4 rounded-bl-xl border border-zinc-800 flex flex-col">
-        <span className="text-xs font-bold text-zinc-500 uppercase mb-2">Does (Hace)</span>
-        <textarea className="flex-1 bg-transparent resize-none outline-none text-sm text-zinc-300 placeholder:text-zinc-700" 
-          placeholder="¿Qué acciones toma?" value={data.does} onChange={e => handleChange('does', e.target.value)} />
-      </div>
-      <div className="bg-zinc-900/50 p-4 rounded-br-xl border border-zinc-800 flex flex-col">
-        <span className="text-xs font-bold text-zinc-500 uppercase mb-2">Feels (Siente)</span>
-        <textarea className="flex-1 bg-transparent resize-none outline-none text-sm text-zinc-300 placeholder:text-zinc-700" 
-          placeholder="¿Cuáles son sus emociones?" value={data.feels} onChange={e => handleChange('feels', e.target.value)} />
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-zinc-800 rounded-xl overflow-hidden border border-zinc-800 shadow-sm">
+      <Area label="SAYS (DICE)" field="says" />
+      <Area label="THINKS (PIENSA)" field="thinks" />
+      <Area label="DOES (HACE)" field="does" />
+      <Area label="FEELS (SIENTE)" field="feels" />
     </div>
   );
 };
