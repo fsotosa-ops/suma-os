@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react"; // <--- 1. IMPORTAR SUSPENSE
 import "./globals.css";
 
 import { Sidebar } from "@/components/shared/Sidebar";
@@ -11,7 +12,6 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  // CAMBIO DE MARCA AQUÍ
   title: "Business OS | Strategic Management Platform",
   description: "Unified platform for RevOps strategy and engineering execution.",
 };
@@ -26,7 +26,12 @@ export default function RootLayout({
       <body className={cn(inter.className, "bg-[#020617] text-slate-200 antialiased")}>
         <AppProviders>
           <div className="flex h-screen w-full overflow-hidden bg-[#020617]">
-            <Sidebar />
+            
+            {/* 2. ENVOLVER EL SIDEBAR EN SUSPENSE */}
+            <Suspense fallback={<div className="w-[280px] bg-[#08090a] border-r border-white/[0.06]" />}>
+              <Sidebar />
+            </Suspense>
+            
             <main className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden bg-[#020617]">
               
               <header className="h-16 flex items-center justify-between px-4 md:px-8 border-b border-slate-800 bg-[#020617] sticky top-0 z-40 shrink-0">
