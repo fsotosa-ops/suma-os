@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sumadots OS | Portal de Gestión Tecnológica
 
-## Getting Started
+**Sumadots OS** es una plataforma diseñada para unificar el mundo estratégico de **RevOps** con la ejecución técnica de **Ingeniería (CTO as a Service)**. El sistema permite trazar el impacto directo de la arquitectura de software en las palancas de crecimiento del negocio.
 
-First, run the development server:
+## 🚀 Módulos Principales
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 1. Strategy Board
+Espacio de toma de decisiones estratégicas donde se gestionan los movimientos de la compañía.
+* **Matrices de Priorización**: Visualización de objetivos según Impacto/Esfuerzo, Eisenhower y Radar de Riesgos.
+* **Inventario Estratégico**: Listado detallado de objetivos con seguimiento de progreso y salud.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. RevOps Monitor & Growth Lab
+Centro de mando para métricas de negocio vinculadas a tecnología.
+* **Monitor de Palancas**: Seguimiento en tiempo real de palancas de Crecimiento, Eficiencia y Retención.
+* **Growth Lab**: Registro de experimentos A/B basados en hipótesis estratégicas para optimizar KPIs.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Knowledge Center (Service Mapping)
+El tejido conectivo entre la estrategia y el código.
+* **Operational Domains**: Organización de la documentación por dominios de negocio como Sales Funnel, Revenue Ops y Compliance.
+* **Service Blueprints**: Mapas vivos que conectan la lógica de negocio (RevOps) con la infraestructura técnica (DevTech).
+* **Cloud Ecosystem**: Gestión dinámica y editable del stack tecnológico (AWS, APIs, DBs) que soporta cada proceso.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Execution (Kanban & Sprints)
+Gestión del flujo de trabajo técnico sincronizado con las metas de negocio.
+* **Kanban Board**: Gestión visual de tareas (TODO, In Progress, Review, Done).
+* **Ciclos de Sprint**: Planificación temporal con definición de objetivos de valor para cada ciclo.
+* **Backlog Maestro**: Repositorio centralizado de requerimientos técnicos y funcionales.
 
-## Learn More
+## 🛠️ Stack Tecnológico
 
-To learn more about Next.js, take a look at the following resources:
+* **Framework**: Next.js 15 (App Router).
+* **Lenguaje**: TypeScript para máxima seguridad de tipos.
+* **Estética**: Look & Feel minimalista tipo "Dark Mode" inspirado en Huly.
+* **UI/Styling**: Tailwind CSS 4, Lucide React (iconografía) y Shadcn/UI.
+* **Gráficos**: Recharts para visualización de métricas y tendencias.
+* **Providers**: Context API para gestión de estados globales de Estrategia y Ejecución.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📂 Estructura del Proyecto
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+app/
+├── knowledge-center/   # Hub de documentación y Service Maps
+├── strategy/           # Planificación, Levers y Growth Lab
+├── execution/          # Kanban, Backlog y gestión de Sprints
+├── dashboard/          # Vista ejecutiva consolidada
+├── types/              # Definiciones de interfaces globales
+└── components/         # Componentes UI reutilizables y compartidos
