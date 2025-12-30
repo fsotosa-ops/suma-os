@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sumadots OS | Portal Cliente",
-  description: "Plataforma de gestión tecnológica CTO as a Service",
+  // CAMBIO DE MARCA AQUÍ
+  title: "Business OS | Strategic Management Platform",
+  description: "Unified platform for RevOps strategy and engineering execution.",
 };
 
 export default function RootLayout({
@@ -23,26 +24,17 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body className={cn(inter.className, "bg-[#020617] text-slate-200 antialiased")}>
-        
         <AppProviders>
-          
           <div className="flex h-screen w-full overflow-hidden bg-[#020617]">
-            
-            {/* Sidebar Desktop: Oculto en móviles mediante 'hidden md:flex' */}
             <Sidebar />
-            
             <main className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden bg-[#020617]">
               
-              {/* Header: z-index 50 para estar debajo del Sidebar móvil (z-100) */}
               <header className="h-16 flex items-center justify-between px-4 md:px-8 border-b border-slate-800 bg-[#020617] sticky top-0 z-40 shrink-0">
                 <div className="flex items-center gap-3">
-                  
-                  {/* El MobileSidebar ahora tiene z-index 100 */}
                   <MobileSidebar />
-
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-slate-500 hidden sm:inline">Project /</span>
-                    <span className="font-medium text-white truncate max-w-[150px] sm:max-w-none font-mono">MVP TMS</span>
+                    <span className="text-slate-500 hidden sm:inline">Workspace /</span>
+                    <span className="font-medium text-white truncate max-w-[150px] sm:max-w-none font-mono">Main Project</span>
                   </div>
                 </div>
                 
@@ -51,16 +43,13 @@ export default function RootLayout({
                 </div>
               </header>
 
-              {/* Área de Contenido con scroll independiente */}
               <div className="flex-1 overflow-y-auto custom-scrollbar bg-[#020617]">
                 {children}
               </div>
 
             </main>
           </div>
-          
         </AppProviders>
-
       </body>
     </html>
   );

@@ -8,7 +8,6 @@ import {
   MessageSquare, Settings, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 import { ExecutionSidebarItem } from './ExecutionSidebarItem'; 
-// IMPORTANTE: Verifica que este archivo exista con mayúscula inicial
 import { DiscoverySidebarItem } from './DiscoverySidebarItem'; 
 import { cn } from '@/lib/utils';
 
@@ -20,8 +19,9 @@ export const Sidebar = () => {
     <aside className={cn("hidden md:flex flex-col border-r border-white/[0.06] h-screen bg-[#08090a] shrink-0 transition-all duration-300 ease-in-out z-40", isCollapsed ? 'w-20' : 'w-[280px]')}>
       <div className={cn("p-6 flex items-center", isCollapsed ? 'justify-center' : 'justify-between')}>
         {!isCollapsed && (
+          // CAMBIO DE MARCA AQUÍ
           <Link href="/dashboard" className="flex items-center gap-1 overflow-hidden whitespace-nowrap">
-            <span className="text-xl font-bold text-white tracking-tight font-mono">SUMADOTS</span>
+            <span className="text-xl font-bold text-white tracking-tight font-mono">BUSINESS</span>
             <span className="text-xl font-bold text-blue-500 font-mono">.OS</span>
           </Link>
         )}
@@ -42,13 +42,8 @@ export const Sidebar = () => {
 
         <div className="pt-4 pb-1">
              {!isCollapsed && <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Project Management</p>}
-             
-             {/* Discovery Desplegable */}
              <DiscoverySidebarItem isCollapsed={isCollapsed} />
-
-             {/* Execution Desplegable */}
              <ExecutionSidebarItem isCollapsed={isCollapsed} />
-            
              <SidebarLink href="/knowledge-center" label="Knowledge Center" icon={<BookOpen size={20} />} isCollapsed={isCollapsed} active={pathname.startsWith('/knowledge-center')} />
         </div>
       </nav>
@@ -57,12 +52,12 @@ export const Sidebar = () => {
         {!isCollapsed && (
           <button className="w-full flex items-center gap-3 px-4 py-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl transition-all group whitespace-nowrap">
             <MessageSquare size={20} className="text-blue-400" />
-            <span className="text-sm font-medium text-blue-100">Talk to CTO</span>
+            <span className="text-sm font-medium text-blue-100">Soporte Técnico</span>
           </button>
         )}
         <div className="flex items-center gap-3 px-2 pt-2">
-          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white">PA</div>
-          {!isCollapsed && <div className="flex-1 min-w-0"><p className="text-sm font-medium text-white truncate">Pablo A.</p></div>}
+          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white">AD</div>
+          {!isCollapsed && <div className="flex-1 min-w-0"><p className="text-sm font-medium text-white truncate">Admin</p></div>}
           {!isCollapsed && <Settings size={18} className="text-slate-500" />}
         </div>
       </div>

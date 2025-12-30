@@ -20,7 +20,8 @@ export const MobileSidebar = () => {
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-6 flex justify-between items-center border-b border-white/[0.06]">
-          <span className="text-xl font-bold text-white font-mono">SUMADOTS.OS</span>
+          {/* CAMBIO DE MARCA AQUÍ */}
+          <span className="text-xl font-bold text-white font-mono">BUSINESS.OS</span>
           <button onClick={closeMenu} className="text-slate-400"><X size={24} /></button>
         </div>
         <nav className="p-4 space-y-2">
@@ -30,7 +31,6 @@ export const MobileSidebar = () => {
             <MobileLink href="/strategy" label="Strategy" icon={<Target size={20}/>} active={pathname.startsWith('/strategy')} onClick={closeMenu} />
           </div>
           
-          {/* CAMBIO DE NOMBRE AQUÍ */}
           <div className="py-2"><p className="px-4 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Project Management</p>
             <MobileLink href="/knowledge-center" label="Knowledge Center" icon={<FileText size={20}/>} active={pathname.startsWith('/knowledge-center')} onClick={closeMenu} />
           </div>
