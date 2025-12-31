@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useParams, useRouter } from 'next/navigation';
 import { useProjects } from '@/app/context/ProjectContext'; 
+import { usePermissions } from '@/app/hooks/userPermissions'; // [NUEVO] Importar lógica de permisos
+import { Project } from '@/app/types'; 
 import { CreateProjectModal } from './CreateProjectModal';
-import { DeleteProjectModal } from './DeleteProjectModal'; // Asegúrate de crear este componente
+import { DeleteProjectModal } from './DeleteProjectModal';
+import { SettingsModal } from './SettingsModal';
 
 import { 
   LayoutDashboard, Target, Activity, FlaskConical, BookOpen, 
@@ -27,8 +30,12 @@ export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<{id: string, name: string} | null>(null);
   
+  // [NUEVO] Extraer permisos del hook
+  const { canManageStrategy, canManageDiscovery, canExecute, isOwner } = usePermissions();
+
   const pathname = usePathname();
   const params = useParams();
   const router = useRouter();
@@ -61,7 +68,7 @@ export const Sidebar = () => {
         </button>
       </div>
 
-      {/* PROJECT SWITCHER PREMIUM */}
+      {/* PROJECT SWITCHER */}
       <div className="px-4 mb-6">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -89,11 +96,11 @@ export const Sidebar = () => {
             <DropdownMenuSeparator className="bg-white/5" />
             
             <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-                {projects.map(p => (
+                {projects.map((p: Project) => (
                 <div key={p.id} className="group/item flex items-center pr-2 hover:bg-white/5 transition-colors">
                     <DropdownMenuItem 
-                    onClick={() => router.push(`/${p.id}/dashboard`)}
-                    className="flex-1 flex items-center justify-between px-3 py-2.5 cursor-pointer focus:bg-transparent"
+                      onClick={() => router.push(`/${p.id}/dashboard`)}
+                      className="flex-1 flex items-center justify-between px-3 py-2.5 cursor-pointer focus:bg-transparent"
                     >
                         <div className="flex items-center gap-3">
                             <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center text-[10px] font-bold">
@@ -104,60 +111,87 @@ export const Sidebar = () => {
                         {p.id === projectId && <Check size={14} className="text-blue-500" />}
                     </DropdownMenuItem>
                     
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); openDeleteConfirmation(p.id, p.name); }}
-                        className="p-2 text-zinc-600 hover:text-red-400 hover:bg-red-500/10 rounded-md opacity-0 group-hover/item:opacity-100 transition-all"
-                        title="Eliminar Proyecto"
-                    >
-                        <Trash2 size={14} />
-                    </button>
+                    {/* [LOGICA] Solo mostrar papelera si es Owner */}
+                    {isOwner && (
+                      <button 
+                          onClick={(e) => { e.stopPropagation(); openDeleteConfirmation(p.id, p.name); }}
+                          className="p-2 text-zinc-600 hover:text-red-400 hover:bg-red-500/10 rounded-md opacity-0 group-hover/item:opacity-100 transition-all"
+                          title="Eliminar Proyecto"
+                      >
+                          <Trash2 size={14} />
+                      </button>
+                    )}
                 </div>
                 ))}
             </div>
 
             <DropdownMenuSeparator className="bg-white/5" />
-            <DropdownMenuItem 
-              onClick={() => setIsCreateModalOpen(true)}
-              className="px-3 py-3 cursor-pointer text-blue-400 focus:text-blue-300 focus:bg-blue-500/10 font-bold text-xs flex items-center gap-2"
-            >
-              <Plus size={16} /> 
-              CREAR NUEVO PROYECTO
-            </DropdownMenuItem>
+            {/* [LOGICA] Solo Owner/Admins crean proyectos (Opcional, depende de tu regla) */}
+            {isOwner && (
+              <DropdownMenuItem 
+                onClick={() => setIsCreateModalOpen(true)}
+                className="px-3 py-3 cursor-pointer text-blue-400 focus:text-blue-300 focus:bg-blue-500/10 font-bold text-xs flex items-center gap-2"
+              >
+                <Plus size={16} /> 
+                CREAR NUEVO PROYECTO
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Navegación Restante */}
-      <nav className="flex-1 px-3 space-y-2 overflow-y-auto custom-scrollbar">
+      {/* Navegación Principal */}
+      <nav className="flex-1 px-3 space-y-2 overflow-y-auto custom-scrollbar overflow-x-hidden">
+        {/* El Dashboard es visible para todos */}
         <SidebarLink href={projectLink('/dashboard')} label="Dashboard" icon={<LayoutDashboard size={20} />} isCollapsed={isCollapsed} active={pathname.endsWith('/dashboard')} />
-        <div className="pt-4 pb-1">
-            <p className={cn("px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2", isCollapsed && "hidden")}>Estrategia</p>
-            <SidebarLink href={projectLink('/strategy')} label="Strategy Board" icon={<Target size={20} />} isCollapsed={isCollapsed} active={pathname.endsWith('/strategy')} />
-            <SidebarLink href={projectLink('/strategy/levers')} label="RevOps Monitor" icon={<Activity size={20} />} isCollapsed={isCollapsed} active={pathname.includes('/levers')} />
-            <SidebarLink href={projectLink('/strategy/experiments')} label="Growth Lab" icon={<FlaskConical size={20} />} isCollapsed={isCollapsed} active={pathname.includes('/experiments')} />
-        </div>
-        <div className="pt-4 pb-1">
-             <p className={cn("px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2", isCollapsed && "hidden")}>Project Management</p>
-             <DiscoverySidebarItem isCollapsed={isCollapsed} />
-             <ExecutionSidebarItem isCollapsed={isCollapsed} />
-             <SidebarLink href={projectLink('/knowledge-center')} label="Knowledge Center" icon={<BookOpen size={20} />} isCollapsed={isCollapsed} active={pathname.includes('/knowledge-center')} />
-        </div>
+        
+        {/* [LOGICA] Sección de Estrategia */}
+        {canManageStrategy && (
+          <div className="pt-4 pb-1 animate-in fade-in slide-in-from-left-2">
+              {!isCollapsed && <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Estrategia</p>}
+              <SidebarLink href={projectLink('/strategy')} label="Strategy Board" icon={<Target size={20} />} isCollapsed={isCollapsed} active={pathname.endsWith('/strategy')} />
+              <SidebarLink href={projectLink('/strategy/levers')} label="RevOps Monitor" icon={<Activity size={20} />} isCollapsed={isCollapsed} active={pathname.includes('/levers')} />
+              <SidebarLink href={projectLink('/strategy/experiments')} label="Growth Lab" icon={<FlaskConical size={20} />} isCollapsed={isCollapsed} active={pathname.includes('/experiments')} />
+          </div>
+        )}
+
+        {/* [LOGICA] Sección de Gestión (Discovery + Execution) */}
+        {(canManageDiscovery || canExecute) && (
+          <div className="pt-4 pb-1 animate-in fade-in slide-in-from-left-2">
+              {!isCollapsed && <p className="px-3 text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Project Management</p>}
+              
+              {/* Solo Functionals/Admins ven Discovery */}
+              {canManageDiscovery && <DiscoverySidebarItem isCollapsed={isCollapsed} />}
+              
+              {/* Technicals/Executors/Admins ven Execution */}
+              {canExecute && <ExecutionSidebarItem isCollapsed={isCollapsed} />}
+              
+              {/* Knowledge Center para todos los que gestionan */}
+              <SidebarLink href={projectLink('/knowledge-center')} label="Knowledge Center" icon={<BookOpen size={20} />} isCollapsed={isCollapsed} active={pathname.includes('/knowledge-center')} />
+          </div>
+        )}
       </nav>
-      {/* ... footer ... */}
+
+      {/* Footer */}
+      <div className="p-4 mt-auto border-t border-white/[0.06] space-y-4">
+        <button onClick={() => setIsSettingsOpen(true)} className="w-full flex items-center gap-3 px-2 pt-2 group hover:bg-white/5 rounded-lg transition-colors text-left outline-none">
+          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white group-hover:scale-105 transition-transform">AD</div>
+          {!isCollapsed && (
+            <>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">Admin</p>
+              </div>
+              <Settings size={18} className="text-slate-500 group-hover:text-white transition-colors" />
+            </>
+          )}
+        </button>
+      </div>
     </aside>
 
-    {/* MODALES */}
-    <CreateProjectModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
-        onSubmit={addProject} 
-    />
-    <DeleteProjectModal 
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        projectName={projectToDelete?.name || ''}
-        onConfirm={() => projectToDelete && deleteProject(projectToDelete.id)}
-    />
+    {/* Modales */}
+    <CreateProjectModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSubmit={addProject} />
+    <DeleteProjectModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} projectName={projectToDelete?.name || ''} onConfirm={() => projectToDelete && deleteProject(projectToDelete.id)} />
+    <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 };

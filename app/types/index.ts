@@ -5,6 +5,29 @@ export interface Project {
   name: string;
 }
 
+// --- NUEVOS TIPOS DE SEGURIDAD (CORRECCIÓN PRINCIPAL) ---
+export type UserRole = 
+  | 'SUPER_ADMIN' 
+  | 'OWNER' 
+  | 'DECISION_MAKER' 
+  | 'FUNCTIONAL' 
+  | 'TECHNICAL' 
+  | 'EXECUTOR';
+
+export interface UserProfile {
+  id: string;
+  email: string;      // Faltaba este campo
+  fullName: string;
+  role: UserRole; 
+  avatarUrl?: string;
+}
+
+export interface ProjectMembership {
+  projectId: string;
+  userId: string;
+  role: UserRole;
+}
+
 // --- EXECUTION TYPES (Kanban & Sprints) ---
 export type TicketType = 'EPIC' | 'STORY' | 'TASK' | 'BUG' | 'FEATURE';
 export type TicketStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
