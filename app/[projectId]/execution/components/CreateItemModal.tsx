@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TicketType } from '../types';
+import { TicketType } from '@/app/types';
 
 interface Props {
   isOpen: boolean;

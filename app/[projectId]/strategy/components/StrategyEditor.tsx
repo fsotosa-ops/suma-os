@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useStrategy } from '../context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
+import { Objective } from '@/app/types';
 import { LayoutGrid, Clock, AlertTriangle, Link as LinkIcon, Check, Lightbulb } from 'lucide-react';
 
 export const StrategyEditor = ({ okr, onClose }: { okr: Objective, onClose: () => void }) => {

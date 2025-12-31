@@ -1,6 +1,6 @@
 'use client';
 import { useStrategy } from '../context/StrategyProvider';
-import { Objective } from '@/app/execution/types';
+import { Objective } from '@/app/types';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
 interface Props {

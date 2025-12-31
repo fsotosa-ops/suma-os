@@ -1,5 +1,6 @@
 import React from 'react';
-import { Ticket } from '../types';
+import { Ticket } from '@/app/types';
+
 
 interface Props {
   ticket: Ticket;

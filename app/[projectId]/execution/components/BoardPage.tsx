@@ -1,29 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useExecutionBoard } from '../hooks/useExecutionBoard';
-import { useExecution } from '../context/ExecutionProvider'; // <--- Este es el que usas
+// 1. ELIMINADO: useExecutionBoard (ya no existe)
+import { useExecution } from '../context/ExecutionProvider';
 import { BoardColumn } from './BoardColumn';
 import { TicketDetailModal } from './TicketDetailModal'; 
 import { CreateSprintModal } from './CreateSprintModal';
-import { TicketStatus, Ticket } from '../types';
+// 2. CORREGIDO: Importar desde el archivo central de tipos
+import { TicketStatus, Ticket } from '@/app/types';
 
 export const BoardPage = () => {
+  // Usamos el contexto global que ya maneja los tickets del proyecto actual
   const { tickets, sprints, actions } = useExecution();
   
-  // Estados de interfaz
   const [isSprintModalOpen, setSprintModalOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
-  
-  // Estado nuevo: para saber con qué status iniciar el modal de creación
   const [initialCreateStatus, setInitialCreateStatus] = useState<TicketStatus>('TODO'); 
   const [isCreateMode, setCreateMode] = useState(false);
 
+  // Obtenemos el último sprint (o el activo)
   const currentSprint = sprints[sprints.length - 1];
 
-  // AHORA ACEPTA STATUS OPCIONAL
   const openCreateModal = (status: TicketStatus = 'TODO') => { 
-    setInitialCreateStatus(status); // Guardamos el status de la columna
+    setInitialCreateStatus(status);
     setCreateMode(true); 
     setEditingTicket(null); 
   };
@@ -42,7 +41,6 @@ export const BoardPage = () => {
     if (editingTicket) {
       actions.updateTicket(editingTicket.id, data);
     } else {
-      // Usamos el status guardado si no viene en data
       actions.createTicket({ ...data, status: data.status || initialCreateStatus });
     }
   };
@@ -59,7 +57,7 @@ export const BoardPage = () => {
       
       <header className="px-8 py-6 border-b border-gray-800 flex justify-between items-start">
         <div className="max-w-3xl">
-          <h2 className="text-gray-400 text-xs uppercase tracking-wider mb-2">Proyecto / MVP TMS Integration</h2>
+          <h2 className="text-gray-400 text-xs uppercase tracking-wider mb-2">Proyecto / Sprint Active</h2>
           
           {currentSprint ? (
             <div className="animate-in fade-in slide-in-from-left-2 duration-300">
@@ -77,35 +75,28 @@ export const BoardPage = () => {
                    {currentSprint.goal}
                  </p>
               </div>
-              <div className="text-xs text-gray-500 mt-2 font-mono">
-                {currentSprint.startDate} — {currentSprint.endDate}
-              </div>
             </div>
           ) : (
             <div>
-              {/* CAMBIO: Texto Backlog por Kanban */}
               <h1 className="text-3xl font-bold text-white">Kanban</h1>
               <div className="text-sm text-gray-500 mt-1">Gestión continua de flujo de trabajo.</div>
             </div>
           )}
         </div>
         
-        <div className="flex flex-col items-end gap-3 mt-1">
-          <div className="flex gap-3">
-            <button 
-              onClick={() => setSprintModalOpen(true)}
-              className="px-4 py-2 border border-gray-700 hover:border-gray-500 text-gray-300 rounded-lg text-sm font-medium transition-colors"
-            >
-              Planificar Sprint
-            </button>
-
-            <button 
-              onClick={() => openCreateModal('TODO')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors shadow-[0_0_15px_rgba(37,99,235,0.3)]"
-            >
-              + Añadir Tarea
-            </button>
-          </div>
+        <div className="flex gap-3 mt-1">
+          <button 
+            onClick={() => setSprintModalOpen(true)}
+            className="px-4 py-2 border border-gray-700 hover:border-gray-500 text-gray-300 rounded-lg text-sm font-medium transition-colors"
+          >
+            Planificar Sprint
+          </button>
+          <button 
+            onClick={() => openCreateModal('TODO')}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors shadow-[0_0_15px_rgba(37,99,235,0.3)]"
+          >
+            + Añadir Tarea
+          </button>
         </div>
       </header>
 
@@ -119,18 +110,16 @@ export const BoardPage = () => {
               tickets={tickets.filter(t => t.status === col.id)}
               onDropTicket={actions.moveTicket}
               onCardClick={openEditModal} 
-              onQuickAdd={() => openCreateModal(col.id)} // <-- Acción Rápida conectada
+              onQuickAdd={() => openCreateModal(col.id)}
             />
           ))}
         </div>
       </div>
 
-      {/* MODALES: Pasamos el initialData modificado para incluir el status por defecto si es nuevo */}
       <TicketDetailModal 
         isOpen={isCreateMode || !!editingTicket} 
         onClose={closeTicketModal} 
         onSubmit={handleTicketSubmit}
-        // Truco: si estamos creando, pasamos un objeto "fake" con solo el status para que el modal lo lea
         initialData={editingTicket ? editingTicket : (isCreateMode ? { status: initialCreateStatus } as any : null)} 
       />
 

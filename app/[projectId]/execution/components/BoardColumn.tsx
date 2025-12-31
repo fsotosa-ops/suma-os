@@ -1,5 +1,6 @@
 import React from 'react';
-import { Ticket, TicketStatus } from '../types';
+import { Ticket, TicketStatus } from '@/app/types';
+
 import { BoardCard } from './BoardCard';
 
 interface Props {
