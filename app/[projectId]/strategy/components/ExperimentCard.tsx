@@ -5,15 +5,14 @@ import { Experiment } from '@/app/types';
 import { useStrategy } from '@/app/[projectId]/strategy/context/StrategyProvider';
 import { ConcludeExperimentModal } from './ConcludeExperimentModal';
 import { 
-  FlaskConical, CheckCircle2, MoreVertical, StopCircle, 
-  Trash2, Trophy, ThumbsDown, HelpCircle, Split, 
-  Rocket, TestTube, Beaker, Lightbulb
+  FlaskConical, CheckCircle2, MoreVertical, 
+  Trash2, Trophy, ThumbsDown, 
+  Rocket, TestTube, Beaker
 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -51,7 +50,7 @@ export const ExperimentCard = ({ experiment }: ExperimentCardProps) => {
           <h4 className="font-bold text-white text-base leading-tight mb-1 group-hover:text-pink-400 transition-colors">
             {experiment.name}
           </h4>
-          <p className="text-xs text-zinc-500 line-clamp-2 italic italic">
+          <p className="text-xs text-zinc-500 line-clamp-2 italic">
             "{experiment.hypothesis || 'Sin hipótesis definida'}"
           </p>
         </div>
@@ -94,7 +93,8 @@ export const ExperimentCard = ({ experiment }: ExperimentCardProps) => {
         isOpen={showConcludeModal}
         onClose={() => setShowConcludeModal(false)}
         experiment={experiment}
-        onConclude={(result) => updateExperiment(experiment.id, result)}
+        // SOLUCIÓN: Tipar el parámetro 'result' como 'Partial<Experiment>' para cumplir con TypeScript
+        onConclude={(result: Partial<Experiment>) => updateExperiment(experiment.id, result)}
     />
     </>
   );
