@@ -1,20 +1,11 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { calculateABTest, ABTestResult } from '../../../../lib/statistics';
+import { calculateABTest, ABTestResult } from '@/lib/statistics'; // Motor estadístico restaurado
 import { Experiment } from '@/app/types';
 import { Calculator, Trophy, AlertTriangle, ArrowRight } from 'lucide-react';
 
-interface Props {
-  isOpen: boolean;
-  onClose: () => void;
-  experiment: Experiment;
-  onConclude: (result: any) => void;
-}
-
-export const ConcludeExperimentModal = ({ isOpen, onClose, experiment, onConclude }: Props) => {
-  // Estado para los inputs
+export const ConcludeExperimentModal = ({ isOpen, onClose, experiment, onConclude }: any) => {
   const [data, setData] = useState({
     controlVisits: 0,
     controlConversions: 0,
@@ -22,29 +13,30 @@ export const ConcludeExperimentModal = ({ isOpen, onClose, experiment, onConclud
     variantConversions: 0
   });
 
-  // Estado para el resultado calculado
   const [stats, setStats] = useState<ABTestResult | null>(null);
 
-  // Recalcular cada vez que cambian los datos
+  // Recalcular significancia cada vez que el usuario ingresa datos
   useEffect(() => {
-    const result = calculateABTest(
-      data.controlVisits, data.controlConversions,
-      data.variantVisits, data.variantConversions
-    );
-    setStats(result);
-  }, [data]);
+    if (experiment.type === 'AB_TEST') {
+        const result = calculateABTest(
+            data.controlVisits, data.controlConversions,
+            data.variantVisits, data.variantConversions
+        );
+        setStats(result);
+    }
+  }, [data, experiment.type]);
 
   const handleSubmit = () => {
-    if (!stats) return;
-    
-    // Devolvemos el objeto actualizado para guardarlo en el Provider
+    const isWin = stats?.winner === 'VARIANT';
+    const isLoss = stats?.winner === 'CONTROL';
+
     onConclude({
       status: 'CONCLUDED',
-      result: stats.winner === 'VARIANT' ? 'WIN' : stats.winner === 'CONTROL' ? 'LOSS' : 'INCONCLUSIVE',
-      impact: stats.lift,
+      result: isWin ? 'WIN' : isLoss ? 'LOSS' : 'INCONCLUSIVE',
+      impact: stats?.lift || 0,
       variants: [
-        { name: 'Control', traffic: data.controlVisits, conversions: data.controlConversions, conversionRate: (data.controlConversions/data.controlVisits) || 0 },
-        { name: 'Variante B', traffic: data.variantVisits, conversions: data.variantConversions, conversionRate: (data.variantConversions/data.variantVisits) || 0 }
+        { name: 'Control', traffic: data.controlVisits, conversions: data.controlConversions, conversionRate: (data.controlConversions/data.controlVisits) || 0, visitors: data.controlVisits },
+        { name: 'Variante B', traffic: data.variantVisits, conversions: data.variantConversions, conversionRate: (data.variantConversions/data.variantVisits) || 0, visitors: data.variantVisits }
       ]
     });
     onClose();
@@ -56,98 +48,42 @@ export const ConcludeExperimentModal = ({ isOpen, onClose, experiment, onConclud
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calculator className="text-blue-500" size={20} />
-            Finalizar Experimento: <span className="text-zinc-400">{experiment.name}</span>
+            Finalizar y Analizar: {experiment.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-6 py-4">
-          
-          {/* Columna Control */}
-          <div className="space-y-3 p-3 bg-zinc-900/50 rounded-xl border border-zinc-800">
-            <h4 className="text-xs font-bold text-zinc-500 uppercase text-center">Versión A (Control)</h4>
-            <div>
-              <label className="text-xs text-zinc-400">Visitantes</label>
-              <input 
-                type="number" 
-                className="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-right"
-                value={data.controlVisits}
-                onChange={e => setData({...data, controlVisits: Number(e.target.value)})}
-              />
+        <div className="space-y-6 py-4">
+            <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase block mb-2">Control (A)</label>
+                    <input type="number" placeholder="Visitas" className="w-full bg-black border border-zinc-700 rounded p-2 text-sm mb-2" onChange={e => setData({...data, controlVisits: Number(e.target.value)})} />
+                    <input type="number" placeholder="Conversiones" className="w-full bg-black border border-zinc-700 rounded p-2 text-sm" onChange={e => setData({...data, controlConversions: Number(e.target.value)})} />
+                </div>
+                <div className="p-3 bg-blue-900/10 rounded-xl border border-blue-500/20">
+                    <label className="text-[10px] font-bold text-blue-400 uppercase block mb-2">Variante (B)</label>
+                    <input type="number" placeholder="Visitas" className="w-full bg-black border border-blue-500/30 rounded p-2 text-sm mb-2" onChange={e => setData({...data, variantVisits: Number(e.target.value)})} />
+                    <input type="number" placeholder="Conversiones" className="w-full bg-black border border-blue-500/30 rounded p-2 text-sm" onChange={e => setData({...data, variantConversions: Number(e.target.value)})} />
+                </div>
             </div>
-            <div>
-              <label className="text-xs text-zinc-400">Conversiones</label>
-              <input 
-                type="number" 
-                className="w-full bg-black border border-zinc-700 rounded p-2 text-sm text-right"
-                value={data.controlConversions}
-                onChange={e => setData({...data, controlConversions: Number(e.target.value)})}
-              />
-            </div>
-            <div className="text-center text-xs text-zinc-500 pt-1">
-              CR: {((data.controlConversions / data.controlVisits || 0) * 100).toFixed(2)}%
-            </div>
-          </div>
 
-          {/* Columna Variante */}
-          <div className="space-y-3 p-3 bg-blue-900/10 rounded-xl border border-blue-500/20">
-            <h4 className="text-xs font-bold text-blue-400 uppercase text-center">Versión B (Variante)</h4>
-            <div>
-              <label className="text-xs text-blue-200/50">Visitantes</label>
-              <input 
-                type="number" 
-                className="w-full bg-black border border-blue-500/30 rounded p-2 text-sm text-right focus:border-blue-500 outline-none"
-                value={data.variantVisits}
-                onChange={e => setData({...data, variantVisits: Number(e.target.value)})}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-blue-200/50">Conversiones</label>
-              <input 
-                type="number" 
-                className="w-full bg-black border border-blue-500/30 rounded p-2 text-sm text-right focus:border-blue-500 outline-none"
-                value={data.variantConversions}
-                onChange={e => setData({...data, variantConversions: Number(e.target.value)})}
-              />
-            </div>
-            <div className="text-center text-xs text-blue-400 pt-1">
-              CR: {((data.variantConversions / data.variantVisits || 0) * 100).toFixed(2)}%
-            </div>
-          </div>
+            {stats && (
+                <div className={`p-4 rounded-lg border flex items-center gap-4 transition-all ${stats.isSignificant ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-amber-500/10 border-amber-500/20'}`}>
+                     <div className={`p-2 rounded-full ${stats.isSignificant ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}`}>
+                        {stats.isSignificant ? <Trophy size={20} /> : <AlertTriangle size={20} />}
+                     </div>
+                     <div>
+                        <h4 className="font-bold text-sm">{stats.isSignificant ? `Ganador: ${stats.winner === 'VARIANT' ? 'Variante B' : 'Control'}` : 'Sin significancia real'}</h4>
+                        <p className="text-xs text-zinc-400">Confianza: {stats.confidence}% | Lift: {stats.lift}%</p>
+                     </div>
+                </div>
+            )}
         </div>
 
-        {/* RESULTADO EN TIEMPO REAL */}
-        {stats && (
-          <div className={`p-4 rounded-lg border flex items-center gap-4 ${stats.isSignificant ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-yellow-500/10 border-yellow-500/20'}`}>
-             <div className={`p-2 rounded-full ${stats.isSignificant ? 'bg-emerald-500/20 text-emerald-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
-                {stats.isSignificant ? <Trophy size={24} /> : <AlertTriangle size={24} />}
-             </div>
-             <div className="flex-1">
-                <h4 className={`font-bold ${stats.isSignificant ? 'text-emerald-400' : 'text-yellow-400'}`}>
-                  {stats.isSignificant 
-                    ? `Ganador: ${stats.winner === 'VARIANT' ? 'Variante B' : 'Control'}` 
-                    : 'Resultado No Concluyente'}
-                </h4>
-                <p className="text-xs text-zinc-400">
-                  Confianza estadística: <span className="text-white font-mono">{stats.confidence}%</span>
-                </p>
-                <p className="text-xs text-zinc-400">
-                  Impacto (Lift): <span className={`${stats.lift > 0 ? 'text-emerald-400' : 'text-red-400'} font-mono`}>{stats.lift > 0 ? '+' : ''}{stats.lift}%</span>
-                </p>
-             </div>
-          </div>
-        )}
-
         <DialogFooter>
-          <button onClick={onClose} className="px-4 py-2 text-sm text-zinc-400 hover:text-white">Cancelar</button>
-          <button 
-            onClick={handleSubmit}
-            disabled={!stats}
-            className="bg-white text-black hover:bg-zinc-200 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2"
-          >
-            Confirmar Resultado <ArrowRight size={16} />
+          <button onClick={handleSubmit} className="bg-white text-black hover:bg-zinc-200 px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+            Confirmar y Cierre Estratégico <ArrowRight size={16} />
           </button>
         </DialogFooter>
-
       </DialogContent>
     </Dialog>
   );
