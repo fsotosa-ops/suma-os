@@ -20,33 +20,29 @@ const StrategyContext = createContext<StrategyContextType | undefined>(undefined
 
 export function StrategyProvider({ children }: { children: React.ReactNode }) {
   const params = useParams();
-  const projectId = params?.projectId as string || 'default';
+  const projectId = params?.projectId as string; // Solo usamos el ID de la URL
 
-  // Estados con todos los datos (Mock DB)
-  const [allObjectives, setAllObjectives] = useState<Objective[]>([
-    { 
-      id: '1', projectId: 'suma-os', 
-      title: 'Escalar Revenue Q1', target: '$1.2M ARR', progress: 68, status: 'On Track',
-      impact: 85, effort: 30, urgency: 40, importance: 90, riskProbability: 20, riskSeverity: 40
-    }
-  ]);
+  const [allObjectives, setAllObjectives] = useState<Objective[]>([]);
   const [allLevers, setAllLevers] = useState<RevOpsLever[]>([]);
   const [allExperiments, setAllExperiments] = useState<Experiment[]>([]);
 
-  // Filtrado por proyecto activo
+  // Filtrado dinámico estricto
   const objectives = allObjectives.filter(o => o.projectId === projectId);
   const levers = allLevers.filter(l => l.projectId === projectId);
   const experiments = allExperiments.filter(e => e.projectId === projectId);
 
-  // Actions
   const addObjective = (obj: Objective) => setAllObjectives(prev => [...prev, { ...obj, projectId }]);
-  const updateObjective = (id: string, updates: Partial<Objective>) => setAllObjectives(prev => prev.map(o => o.id === id ? { ...o, ...updates } : o));
-  
   const addLever = (l: RevOpsLever) => setAllLevers(prev => [...prev, { ...l, projectId }]);
-  
   const addExperiment = (e: Experiment) => setAllExperiments(prev => [...prev, { ...e, projectId }]);
-  const updateExperiment = (id: string, updates: Partial<Experiment>) => setAllExperiments(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e));
-  const deleteExperiment = (id: string) => setAllExperiments(prev => prev.filter(e => e.id !== id));
+  
+  const updateExperiment = (id: string, updates: Partial<Experiment>) => 
+    setAllExperiments(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e));
+    
+  const deleteExperiment = (id: string) => 
+    setAllExperiments(prev => prev.filter(e => e.id !== id));
+
+  const updateObjective = (id: string, updates: Partial<Objective>) => 
+    setAllObjectives(prev => prev.map(o => o.id === id ? { ...o, ...updates } : o));
 
   return (
     <StrategyContext.Provider value={{ 
